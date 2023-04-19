@@ -17,7 +17,6 @@ export class Model<Type extends IModel> implements IModel {
 
 export class ModelInsertable<Type extends Record<string, any>> {
   constructor(data: Type) {
-    const self = this as any;
     for (const d in data) {
       this[d as any as keyof this] = data[d] as any;
     }
