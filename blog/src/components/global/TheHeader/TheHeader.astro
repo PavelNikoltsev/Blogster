@@ -1,0 +1,25 @@
+---
+import CForm from "../../custom/CForm.astro";
+---
+
+<header>
+  <button class="sign-in-button">Sign In</button>
+  <button class="sign-up-button">Sign Up</button>
+</header>
+<script>
+  import { modalOpen } from "../../../utils";
+  const signInButton = document.querySelector(".sign-in-button");
+  signInButton?.addEventListener("click", () => modalOpen("sign-in-form"));
+  const signUpButton = document.querySelector(".sign-up-button");
+  signUpButton?.addEventListener("click", () => modalOpen("sign-up-form"));
+</script>
+<style lang="postcss" is:global>
+  header {
+    height: 50px;
+    display: flex;
+    background-color: #36454f;
+    color: #fff;
+    justify-content: center;
+    gap: 20px;
+  }
+</style>

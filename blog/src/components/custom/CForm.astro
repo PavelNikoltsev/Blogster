@@ -1,0 +1,14 @@
+---
+export interface Props {
+  name: string;
+  id?: string;
+}
+const { name, id } = Astro.props;
+---
+
+<div class="custom-form">
+  <form name={name} id={id}>
+    <slot />
+  </form>
+</div>
+<style lang="postcss" is:global></style>

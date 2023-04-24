@@ -1,3 +1,5 @@
+import db from "../db/index.js";
+
 export interface IModel {
   id: number;
   created: number;
