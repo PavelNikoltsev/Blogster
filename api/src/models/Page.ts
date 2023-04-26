@@ -1,6 +1,7 @@
 import db from "../db/index.js";
 import { IModel, Model, ModelInsertable } from "./Model.js";
 import { Tag } from "./Tag.js";
+import * as Query from "../query-builder/index.js";
 
 export interface IPageInsertable {
   title: string;
@@ -22,68 +23,53 @@ export class PageInsertable extends ModelInsertable<IPageInsertable> {
   declare status: "draft" | "published";
   declare link: string;
   declare tags: Tag[] | [];
-}
-
-export function createPage(p: PageInsertable) {
-  const created = new Date();
-  const query = {
-    text: "INSERT INTO pages (title, description, author, content, slug, status, link, tags, created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-    values: [
-      p.title,
-      p.description,
-      p.author,
-      p.content,
-      p.slug,
-      p.status,
-      p.link,
-      p.tags,
-      created,
-    ],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Page ${p.slug} created`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
-}
-
-export interface updatePageOptions {
-  title?: string;
-  description?: string;
-  author?: string;
-  content?: string;
-  slug?: string;
-  status?: "draft" | "published";
-  link?: string;
-}
-export function updatePage(id: number, options: updatePageOptions) {
-  const updated = new Date();
-  for (const key of Object.keys(options) as Array<keyof updatePageOptions>) {
-    const query = {
-      text: `UPDATE pages SET ${key} = $2 WHERE id = $1`,
-      values: [id, options[key]],
-    };
-    db.query(query)
-      .then(() => {
-        console.log(`Page #${id} field ${key} updated`);
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+  async create() {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.InsertQuery(
+      "pages",
+      fields,
+      values as string[]
+    ).run();
   }
-  const query = {
-    text: `UPDATE pages SET updated = $2 WHERE id = $1`,
-    values: [id, updated],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Page #${id} field updated updated`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+  async update(id: number) {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.UpdateQuery("pages", fields, values as string[])
+      .where("id", id)
+      .run();
+  }
+}
+export async function deletePage(id: number) {
+  return await new Query.DeleteQuery("pages").where("id", id).run();
+}
+export async function getPage(id: number) {
+  return await new Query.SelectQuery("pages").where("id", id).run();
+}
+export async function listPages() {
+  return await new Query.SelectQuery("pages").run();
+}
+export async function patchPage(
+  id: number,
+  data: Record<string, string | number | boolean>
+) {
+  const fields = [];
+  const values = [];
+  for (const c in data) {
+    fields.push(c);
+    values.push(data[c]);
+  }
+  return await new Query.UpdateQuery("pages", fields, values)
+    .where("id", id)
+    .run();
 }
 
 export interface IPage extends IPageInsertable, IModel {}
@@ -118,7 +104,7 @@ async function init() {
         created TIMESTAMP DEFAULT NOW(),
         updated TIMESTAMP
       )`,
-    "Pages"
+    "pages"
   );
 }
 await init();

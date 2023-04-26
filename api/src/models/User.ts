@@ -2,6 +2,7 @@ import db from "../db/index.js";
 import { Comment } from "./Comment.js";
 import { IModel, Model, ModelInsertable } from "./Model.js";
 import { Post } from "./Post.js";
+import * as Query from "../query-builder/index.js";
 
 export interface IUserInsertable {
   name: string;
@@ -19,55 +20,54 @@ export class UserInsertable extends ModelInsertable<IUserInsertable> {
   declare role: "client" | "admin";
   declare posts: Post[] | [];
   declare comments: Comment[] | [];
-}
-
-export function createUser(u: UserInsertable) {
-  const created = new Date();
-  const query = {
-    text: "INSERT INTO users (name, email, password, role, created) VALUES ($1, $2, $3, $4, $5)",
-    values: [u.name, u.email, u.password, u.role, created],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`User ${u.email} created`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
-}
-
-export interface updateUserOptions {
-  name?: string;
-  email?: string;
-  password?: string;
-  role?: "client" | "admin";
-}
-export function updateUser(id: number, options: updateUserOptions) {
-  const updated = new Date();
-  for (const key of Object.keys(options) as Array<keyof updateUserOptions>) {
-    const query = {
-      text: `UPDATE users SET ${key} = $2 WHERE id = $1`,
-      values: [id, options[key]],
-    };
-    db.query(query)
-      .then(() => {
-        console.log(`User #${id} field ${key} updated`);
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+  async create() {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.InsertQuery(
+      "users",
+      fields,
+      values as string[]
+    ).run();
   }
-  const query = {
-    text: `UPDATE users SET updated = $2 WHERE id = $1`,
-    values: [id, updated],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`User #${id} field updated updated`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+  async update(id: number) {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.UpdateQuery("users", fields, values as string[])
+      .where("id", id)
+      .run();
+  }
+}
+
+export async function deleteUser(id: number) {
+  return await new Query.DeleteQuery("users").where("id", id).run();
+}
+export async function getUser(id: number) {
+  return await new Query.SelectQuery("users").where("id", id).run();
+}
+export async function listUsers() {
+  return await new Query.SelectQuery("users").run();
+}
+export async function patchUser(
+  id: number,
+  data: Record<string, string | number | boolean>
+) {
+  const fields = [];
+  const values = [];
+  for (const c in data) {
+    fields.push(c);
+    values.push(data[c]);
+  }
+  return await new Query.UpdateQuery("users", fields, values)
+    .where("id", id)
+    .run();
 }
 
 export interface IUser extends IUserInsertable, IModel {}

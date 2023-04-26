@@ -3,6 +3,7 @@ import { Category } from "./Category.js";
 import { Comment } from "./Comment.js";
 import { IModel, Model, ModelInsertable } from "./Model.js";
 import { Tag } from "./Tag.js";
+import * as Query from "../query-builder/index.js";
 
 export interface IPostInsertable {
   title: string;
@@ -28,69 +29,54 @@ export class PostInsertable extends ModelInsertable<IPostInsertable> {
   declare tags: Tag[] | [];
   declare comments: Comment[] | [];
   declare category: Category;
-}
-
-export function createPost(p: PostInsertable) {
-  const created = new Date();
-  const query = {
-    text: "INSERT INTO posts (title, description, author, content, slug, status, link, tags, category, created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
-    values: [
-      p.title,
-      p.description,
-      p.author,
-      p.content,
-      p.slug,
-      p.status,
-      p.link,
-      p.tags,
-      p.category,
-      created,
-    ],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Post ${p.slug} created`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
-}
-
-export interface updatePostOptions {
-  title?: string;
-  description?: string;
-  author?: string;
-  content?: string;
-  slug?: string;
-  status?: "draft" | "published";
-  link?: string;
-}
-export function updatePost(id: number, options: updatePostOptions) {
-  const updated = new Date();
-  for (const key of Object.keys(options) as Array<keyof updatePostOptions>) {
-    const query = {
-      text: `UPDATE posts SET ${key} = $2 WHERE id = $1`,
-      values: [id, options[key]],
-    };
-    db.query(query)
-      .then(() => {
-        console.log(`Post #${id} field ${key} updated`);
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+  async create() {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.InsertQuery(
+      "posts",
+      fields,
+      values as string[]
+    ).run();
   }
-  const query = {
-    text: `UPDATE posts SET updated = $2 WHERE id = $1`,
-    values: [id, updated],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Post #${id} field updated updated`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+  async update(id: number) {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.UpdateQuery("posts", fields, values as string[])
+      .where("id", id)
+      .run();
+  }
+}
+
+export async function deletePost(id: number) {
+  return await new Query.DeleteQuery("posts").where("id", id).run();
+}
+export async function getPost(id: number) {
+  return await new Query.SelectQuery("posts").where("id", id).run();
+}
+export async function listPosts() {
+  return await new Query.SelectQuery("posts").run();
+}
+export async function patchPost(
+  id: number,
+  data: Record<string, string | number | boolean>
+) {
+  const fields = [];
+  const values = [];
+  for (const c in data) {
+    fields.push(c);
+    values.push(data[c]);
+  }
+  return await new Query.UpdateQuery("posts", fields, values)
+    .where("id", id)
+    .run();
 }
 
 export interface IPost extends IPostInsertable, IModel {}

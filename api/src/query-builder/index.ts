@@ -6,7 +6,7 @@
 
 import db from "../db/index.js";
 
-type QueryFieldValuePrimitive = string | boolean | number | null;
+type QueryFieldValuePrimitive = string | boolean | number | null | Date;
 type QueryFieldValue = QueryFieldValuePrimitive | QueryFieldValuePrimitive[];
 enum QueryCondition {
   EQUAL = "=",
@@ -35,7 +35,9 @@ export class WhereQuery extends String {
     value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
     condition: QueryCondition = QueryCondition.EQUAL
   ) {
-    super(`WHERE ${key} ${condition} ${WhereQuery.getValue(value, condition)}`);
+    super(
+      ` WHERE ${key} ${condition} ${WhereQuery.getValue(value, condition)}`
+    );
   }
   private static getValue(
     v: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
@@ -182,19 +184,21 @@ export class SelectQuery {
 export class InsertQuery {
   text: string;
   v: Exclude<QueryFieldValuePrimitive, null> | QueryFieldValue;
+  f: string[];
   insertableV: string[] = [];
   constructor(
     tName: string,
     fields: string[],
     values: Exclude<QueryFieldValuePrimitive, null>[]
   ) {
-    this.v = values;
+    this.v = [...values, new Date()];
+    this.f = [...fields, "created"];
     this.v.forEach((v, index) => {
       this.insertableV.push(`$${index + 1}`);
     });
-    this.text = `INSERT INTO ${tName} (${
-      Array.isArray(fields) ? fields.join(",") : fields
-    }) VALUES (${this.insertableV.join(",")})`;
+    this.text = `INSERT INTO ${tName} (${this.f.join(
+      ","
+    )}) VALUES (${this.insertableV.join(",")})`;
   }
   //   TODO Type for values???
   async run() {
@@ -258,6 +262,7 @@ export class DeleteQuery {
 export class UpdateQuery {
   start: string;
   v: Exclude<QueryFieldValuePrimitive, null> | QueryFieldValue;
+  f: string[];
   insertableV: string[] = [];
   valuePairs: string[] = [];
   whereQueries: WhereQuery[];
@@ -266,9 +271,10 @@ export class UpdateQuery {
     fields: string[],
     values: Exclude<QueryFieldValuePrimitive, null>[]
   ) {
-    this.v = values;
+    this.v = [...values, new Date()];
+    this.f = [...fields, "updated"];
     this.v.forEach((v, i) => {
-      this.valuePairs.push(`${fields[i]} = $${i + 1}`);
+      this.valuePairs.push(`${this.f[i]} = $${i + 1}`);
       this.insertableV.push(`$${i + 1}`);
     });
     this.start = `UPDATE ${tName} SET ${this.valuePairs.join(",")} `;

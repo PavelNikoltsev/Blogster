@@ -1,5 +1,6 @@
 import db from "../db/index.js";
 import { IModel, Model, ModelInsertable } from "./Model.js";
+import * as Query from "../query-builder/index.js";
 
 export interface ICategoryInsertable {
   name: string;
@@ -11,35 +12,53 @@ export class CategoryInsertable extends ModelInsertable<ICategoryInsertable> {
   declare name: string;
   declare link: string;
   declare slug: string;
+  async create() {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.InsertQuery(
+      "categories",
+      fields,
+      values as string[]
+    ).run();
+  }
+  async update(id: number) {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.UpdateQuery("categories", fields, values as string[])
+      .where("id", id)
+      .run();
+  }
 }
-export function createCategory(c: CategoryInsertable) {
-  const created = new Date();
-  const query = {
-    text: "INSERT INTO categories (name, link, slug, created) VALUES ($1, $2, $3, $4)",
-    values: [c.name, c.link, c.slug, created],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Category ${c.name} created`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+export async function deleteCategory(id: number) {
+  return await new Query.DeleteQuery("categories").where("id", id).run();
 }
-
-export function updateCategory(id: number, c: CategoryInsertable) {
-  const updated = new Date();
-  const query = {
-    text: "UPDATE categories SET name = $2, link = $3, slug = $4, updated = $5 WHERE id = $1",
-    values: [id, c.name, c.link, c.slug, updated],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Category #${id} updated`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+export async function getCategory(id: number) {
+  return await new Query.SelectQuery("categories").where("id", id).run();
+}
+export async function listCategories() {
+  return await new Query.SelectQuery("categories").run();
+}
+export async function patchCategory(
+  id: number,
+  data: Record<string, string | number | boolean>
+) {
+  const fields = [];
+  const values = [];
+  for (const c in data) {
+    fields.push(c);
+    values.push(data[c]);
+  }
+  return await new Query.UpdateQuery("categories", fields, values)
+    .where("id", id)
+    .run();
 }
 
 export interface ICategory extends ICategoryInsertable, IModel {}
@@ -48,10 +67,6 @@ export class Category extends Model<ICategory> {
   declare name: string;
   declare link: string;
   declare slug: string;
-}
-
-export function test() {
-  console.log("categories");
 }
 
 async function init() {

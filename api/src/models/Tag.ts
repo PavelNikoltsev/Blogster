@@ -1,5 +1,6 @@
 import db from "../db/index.js";
 import { IModel, Model, ModelInsertable } from "./Model.js";
+import * as Query from "../query-builder/index.js";
 
 export interface ITagInsertable {
   name: string;
@@ -11,35 +12,53 @@ export class TagInsertable extends ModelInsertable<ITagInsertable> {
   declare name: string;
   declare link: string;
   declare slug: string;
+  async create() {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.InsertQuery(
+      "tags",
+      fields,
+      values as string[]
+    ).run();
+  }
+  async update(id: number) {
+    const fields = [];
+    const values = [];
+    for (const c in this) {
+      fields.push(c);
+      values.push(this[c]);
+    }
+    return await new Query.UpdateQuery("tags", fields, values as string[])
+      .where("id", id)
+      .run();
+  }
 }
-export function createTag(t: TagInsertable) {
-  const created = new Date();
-  const query = {
-    text: "INSERT INTO tags (name, link, slug, created) VALUES ($1, $2, $3, $4)",
-    values: [t.name, t.link, t.slug, created],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Tag ${t.name} created`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+export async function deleteTag(id: number) {
+  return await new Query.DeleteQuery("tags").where("id", id).run();
 }
-
-export function updateTag(id: number, t: TagInsertable) {
-  const updated = new Date();
-  const query = {
-    text: "UPDATE tags SET name = $2, link = $3, slug = $4, updated = $5 WHERE id = $1",
-    values: [id, t.name, t.link, t.slug, updated],
-  };
-  db.query(query)
-    .then(() => {
-      console.log(`Tag #${id} updated`);
-    })
-    .catch((err) => {
-      throw new Error(err);
-    });
+export async function getTag(id: number) {
+  return await new Query.SelectQuery("tags").where("id", id).run();
+}
+export async function listTags() {
+  return await new Query.SelectQuery("tags").run();
+}
+export async function patchTag(
+  id: number,
+  data: Record<string, string | number | boolean>
+) {
+  const fields = [];
+  const values = [];
+  for (const c in data) {
+    fields.push(c);
+    values.push(data[c]);
+  }
+  return await new Query.UpdateQuery("tags", fields, values)
+    .where("id", id)
+    .run();
 }
 
 export interface ITag extends ITagInsertable, IModel {}
@@ -48,10 +67,6 @@ export class Tag extends Model<ITag> {
   declare name: string;
   declare link: string;
   declare slug: string;
-}
-
-export function test() {
-  console.log("tags");
 }
 
 async function init() {
