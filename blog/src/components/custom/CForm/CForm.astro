@@ -11,4 +11,11 @@ const { name, id } = Astro.props;
     <slot />
   </form>
 </div>
-<style lang="postcss" is:global></style>
+<style lang="postcss" is:global>
+  .custom-form {
+    > form {
+      display: grid;
+      gap: 20px;
+    }
+  }
+</style>

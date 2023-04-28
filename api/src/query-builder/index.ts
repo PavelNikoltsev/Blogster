@@ -4,10 +4,13 @@
 // DELETE FROM table_name WHERE id=12 RETURNING *;
 // UPDATE table_name SET (name) = ('test') WHERE id=12 RETURNING *;
 
+import { QueryResultRow } from "pg";
 import db from "../db/index.js";
 
 type QueryFieldValuePrimitive = string | boolean | number | null | Date;
-type QueryFieldValue = QueryFieldValuePrimitive | QueryFieldValuePrimitive[];
+export type QueryFieldValue =
+  | QueryFieldValuePrimitive
+  | QueryFieldValuePrimitive[];
 enum QueryCondition {
   EQUAL = "=",
   LESS = "<",
@@ -20,24 +23,152 @@ enum QueryCondition {
   BETWEEN = "BETWEEN",
 }
 
-export function encodeFieldValue(v: QueryFieldValue): string {
-  if (typeof v === "object" && v !== null) {
-    if (Array.isArray(v))
-      return `{${v.map((w) => encodeFieldValue(w)).join(",")}}`;
-    throw new Error(`Invalid type for QueryFieldValue:object ${v}`);
-  }
-  return JSON.stringify(v);
+interface QueryStatement {
+  query: string;
+  order: number;
 }
-
-export class WhereQuery extends String {
-  constructor(
+export class Query<T extends QueryResultRow = any> {
+  protected statements: Record<string, QueryStatement>;
+  protected table: string;
+  constructor(table: string, returning?: boolean) {
+    this.table = table;
+    this.statements = {};
+    if (returning) {
+      this.statements.returning = {
+        query: "RETURNING *",
+        order: 4,
+      };
+    }
+  }
+  static encodeFieldValue(v: QueryFieldValue): string {
+    if (typeof v === "object" && v !== null) {
+      if (Array.isArray(v))
+        return `{${v.map((w) => Query.encodeFieldValue(w)).join(",")}}`;
+      throw new Error(`Invalid type for QueryFieldValue:object ${v}`);
+    }
+    return JSON.stringify(v);
+  }
+  select(fields: "*" | string[] | string = "*") {
+    return new SelectQuery<T>(this.table, fields);
+  }
+  insert(object: Record<string, QueryFieldValue>) {
+    return new InsertQuery<T>(this.table, object);
+  }
+  update(object: Record<string, QueryFieldValue>) {
+    return new UpdateQuery<T>(this.table, object);
+  }
+  delete() {
+    return new DeleteQuery<T>(this.table);
+  }
+  async run() {
+    return db.query<T>(
+      Object.values(this.statements)
+        .sort((a, b) => a.order - b.order)
+        .map((q) => q.query)
+        .join(" ")
+    );
+  }
+}
+class ConditionalQuery<T extends QueryResultRow = any> extends Query<T> {
+  constructor(table: string, returning?: boolean) {
+    super(table, returning);
+  }
+  where(
+    key: string,
+    value: QueryFieldValue,
+    condition?: Exclude<
+      QueryCondition,
+      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
+    >
+  ): this;
+  where(key: string, value: string, condition: QueryCondition.LIKE): this;
+  where(
+    key: string,
+    value: Exclude<QueryFieldValuePrimitive, null>,
+    condition: QueryCondition.IN
+  ): this;
+  where(
+    key: string,
+    value: [string, string] | [number, number],
+    condition: QueryCondition.BETWEEN
+  ): this;
+  where(
     key: string,
     value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
     condition: QueryCondition = QueryCondition.EQUAL
-  ) {
-    super(
-      ` WHERE ${key} ${condition} ${WhereQuery.getValue(value, condition)}`
-    );
+  ): this {
+    this.statements.where = {
+      order: 2,
+      query: `WHERE ${key} ${condition} ${ConditionalQuery.getValue(
+        value,
+        condition
+      )}`,
+    };
+    return this;
+  }
+  and(
+    key: string,
+    value: QueryFieldValue,
+    condition?: Exclude<
+      QueryCondition,
+      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
+    >
+  ): this;
+  and(key: string, value: string, condition: QueryCondition.LIKE): this;
+  and(
+    key: string,
+    value: Exclude<QueryFieldValuePrimitive, null>,
+    condition: QueryCondition.IN
+  ): this;
+  and(
+    key: string,
+    value: [string, string] | [number, number],
+    condition: QueryCondition.BETWEEN
+  ): this;
+  and(
+    key: string,
+    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
+    condition: QueryCondition = QueryCondition.EQUAL
+  ): this {
+    if (!this.statements.where)
+      throw new Error('Cant use "and()" before "where()" call');
+    this.statements.where.query += ` AND ${key} ${condition} ${ConditionalQuery.getValue(
+      value,
+      condition
+    )}`;
+    return this;
+  }
+  or(
+    key: string,
+    value: QueryFieldValue,
+    condition?: Exclude<
+      QueryCondition,
+      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
+    >
+  ): this;
+  or(key: string, value: string, condition: QueryCondition.LIKE): this;
+  or(
+    key: string,
+    value: Exclude<QueryFieldValuePrimitive, null>,
+    condition: QueryCondition.IN
+  ): this;
+  or(
+    key: string,
+    value: [string, string] | [number, number],
+    condition: QueryCondition.BETWEEN
+  ): this;
+  or(
+    key: string,
+    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
+    condition: QueryCondition = QueryCondition.EQUAL
+  ): this {
+    if (!this.statements.where)
+      throw new Error('Cant use "or()" before "where()" call');
+    this.statements.where.query += ` OR ${key} ${condition} ${ConditionalQuery.getValue(
+      value,
+      condition
+    )}`;
+    return this;
   }
   private static getValue(
     v: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
@@ -46,283 +177,95 @@ export class WhereQuery extends String {
     switch (condition) {
       case QueryCondition.BETWEEN:
         if (Array.isArray(v) && v.length === 2) {
-          return `${encodeFieldValue(v[0])} AND ${encodeFieldValue(v[1])}`;
+          return `${Query.encodeFieldValue(v[0])} AND ${Query.encodeFieldValue(
+            v[1]
+          )}`;
         }
         throw new Error(
           `Between query should have exactly two values. Got ${v}`
         );
       case QueryCondition.IN:
         v = Array.isArray(v) ? v : [v];
-        return `(${v.map((w) => encodeFieldValue(w)).join(",")})`;
+        return `(${v.map((w) => Query.encodeFieldValue(w)).join(",")})`;
       default:
-        return encodeFieldValue(v);
+        return Query.encodeFieldValue(v);
     }
   }
 }
 
-export class SelectQuery {
-  start: string;
-  whereQueries: WhereQuery[];
-  limitQuery: string = "";
-  offsetQuery: string = "";
-  orderByQuery: string = "";
-  constructor(tName: string, fields: "*" | string[] | string = "*") {
-    this.start = `SELECT ${
-      Array.isArray(fields) ? fields.join(",") : fields
-    } FROM ${tName}`;
-    this.whereQueries = [];
-  }
-  where(
-    key: string,
-    value: QueryFieldValue,
-    condition?: Exclude<
-      QueryCondition,
-      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
-    >
-  ): SelectQuery;
-  where(
-    key: string,
-    value: string,
-    condition: QueryCondition.LIKE
-  ): SelectQuery;
-  where(
-    key: string,
-    value: Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition.IN
-  ): SelectQuery;
-  where(
-    key: string,
-    value: [string, string] | [number, number],
-    condition: QueryCondition.BETWEEN
-  ): SelectQuery;
-  where(
-    key: string,
-    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition = QueryCondition.EQUAL
-  ): SelectQuery {
-    this.whereQueries.push(new WhereQuery(key, value, condition));
-    return this;
-  }
-  and(
-    key: string,
-    value: QueryFieldValue,
-    condition?: Exclude<
-      QueryCondition,
-      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
-    >
-  ): SelectQuery;
-  and(key: string, value: string, condition: QueryCondition.LIKE): SelectQuery;
-  and(
-    key: string,
-    value: Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition.IN
-  ): SelectQuery;
-  and(
-    key: string,
-    value: [string, string] | [number, number],
-    condition: QueryCondition.BETWEEN
-  ): SelectQuery;
-  and(
-    key: string,
-    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition = QueryCondition.EQUAL
-  ): SelectQuery {
-    this.whereQueries.push("and");
-    this.whereQueries.push(new WhereQuery(key, value, condition));
-    return this;
-  }
-  or(
-    key: string,
-    value: QueryFieldValue,
-    condition?: Exclude<
-      QueryCondition,
-      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
-    >
-  ): SelectQuery;
-  or(key: string, value: string, condition: QueryCondition.LIKE): SelectQuery;
-  or(
-    key: string,
-    value: Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition.IN
-  ): SelectQuery;
-  or(
-    key: string,
-    value: [string, string] | [number, number],
-    condition: QueryCondition.BETWEEN
-  ): SelectQuery;
-  or(
-    key: string,
-    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition = QueryCondition.EQUAL
-  ): SelectQuery {
-    this.whereQueries.push("or");
-    this.whereQueries.push(new WhereQuery(key, value, condition));
-    return this;
+export class SelectQuery<
+  T extends QueryResultRow = any
+> extends ConditionalQuery<T> {
+  constructor(table: string, fields: "*" | string[] | string = "*") {
+    super(table);
+    this.statements.start = {
+      query: `SELECT ${
+        Array.isArray(fields) ? fields.join(",") : fields
+      } FROM ${this.table}`,
+      order: 0,
+    };
   }
   limit(l: number) {
-    this.limitQuery = ` LIMIT ${l}`;
+    this.statements.limit = {
+      query: ` LIMIT ${l}`,
+      order: 3,
+    };
     return this;
   }
   offset(o: number) {
-    this.offsetQuery = ` OFFSET ${o}`;
+    this.statements.order = {
+      query: ` OFFSET ${o}`,
+      order: 3,
+    };
     return this;
   }
   orderBy(o: string) {
-    this.orderByQuery = ` ORDER BY ${o}`;
-    return this;
-  }
-  async run() {
-    let query = this.start;
-    if (this.whereQueries.length) {
-      query += this.whereQueries.join(" ");
-    }
-    query += this.limitQuery + this.offsetQuery + this.orderByQuery;
-    return db.query(query);
-  }
-}
-
-export class InsertQuery {
-  text: string;
-  v: Exclude<QueryFieldValuePrimitive, null> | QueryFieldValue;
-  f: string[];
-  insertableV: string[] = [];
-  constructor(
-    tName: string,
-    fields: string[],
-    values: Exclude<QueryFieldValuePrimitive, null>[]
-  ) {
-    this.v = [...values, new Date()];
-    this.f = [...fields, "created"];
-    this.v.forEach((v, index) => {
-      this.insertableV.push(`$${index + 1}`);
-    });
-    this.text = `INSERT INTO ${tName} (${this.f.join(
-      ","
-    )}) VALUES (${this.insertableV.join(",")})`;
-  }
-  //   TODO Type for values???
-  async run() {
-    const query = {
-      text: this.text,
-      values: this.v as any[],
+    this.statements.limit = {
+      query: ` ORDER BY ${o}`,
+      order: 3,
     };
-    return db.query(query);
+    return this;
   }
 }
 
-export class DeleteQuery {
-  start: string;
-  whereQueries: WhereQuery[];
-  constructor(tName: string) {
-    this.start = `DELETE FROM ${tName} `;
-    this.whereQueries = [];
-  }
-  where(
-    key: string,
-    value: QueryFieldValue,
-    condition?: Exclude<
-      QueryCondition,
-      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
-    >
-  ): DeleteQuery;
-  where(
-    key: string,
-    value: string,
-    condition: QueryCondition.LIKE
-  ): DeleteQuery;
-  where(
-    key: string,
-    value: Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition.IN
-  ): DeleteQuery;
-  where(
-    key: string,
-    value: [string, string] | [number, number],
-    condition: QueryCondition.BETWEEN
-  ): DeleteQuery;
-  where(
-    key: string,
-    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition = QueryCondition.EQUAL
-  ): DeleteQuery {
-    this.whereQueries.push(new WhereQuery(key, value, condition));
-    return this;
-  }
-  async run() {
-    let query = this.start;
-    if (this.whereQueries.length) {
-      query += `${this.whereQueries.join(" ")} RETURNING *`;
-    } else {
-      query += "RETURNING *";
-    }
-    return db.query(query);
-  }
-}
-
-export class UpdateQuery {
-  start: string;
-  v: Exclude<QueryFieldValuePrimitive, null> | QueryFieldValue;
-  f: string[];
-  insertableV: string[] = [];
-  valuePairs: string[] = [];
-  whereQueries: WhereQuery[];
-  constructor(
-    tName: string,
-    fields: string[],
-    values: Exclude<QueryFieldValuePrimitive, null>[]
-  ) {
-    this.v = [...values, new Date()];
-    this.f = [...fields, "updated"];
-    this.v.forEach((v, i) => {
-      this.valuePairs.push(`${this.f[i]} = $${i + 1}`);
-      this.insertableV.push(`$${i + 1}`);
-    });
-    this.start = `UPDATE ${tName} SET ${this.valuePairs.join(",")} `;
-    this.whereQueries = [];
-  }
-  where(
-    key: string,
-    value: QueryFieldValue,
-    condition?: Exclude<
-      QueryCondition,
-      QueryCondition.LIKE | QueryCondition.IN | QueryCondition.BETWEEN
-    >
-  ): UpdateQuery;
-  where(
-    key: string,
-    value: string,
-    condition: QueryCondition.LIKE
-  ): UpdateQuery;
-  where(
-    key: string,
-    value: Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition.IN
-  ): UpdateQuery;
-  where(
-    key: string,
-    value: [string, string] | [number, number],
-    condition: QueryCondition.BETWEEN
-  ): UpdateQuery;
-  where(
-    key: string,
-    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
-    condition: QueryCondition = QueryCondition.EQUAL
-  ): UpdateQuery {
-    this.whereQueries.push(new WhereQuery(key, value, condition));
-    return this;
-  }
-
-  async run() {
-    let text = this.start;
-    if (this.whereQueries.length) {
-      text += `${this.whereQueries.join(" ")} RETURNING *`;
-    } else {
-      text += "RETURNING *";
-    }
-    const query = {
-      text: text,
-      values: this.v as any[],
+export class InsertQuery<T extends QueryResultRow = any> extends Query<T> {
+  constructor(table: string, object: Record<string, QueryFieldValue>) {
+    super(table, true);
+    const fields = Object.keys(object).join(",");
+    const values = Object.values(object)
+      .map((v) => Query.encodeFieldValue(v))
+      .join(",");
+    this.statements.start = {
+      query: `INSERT INTO ${this.table} (${fields}) VALUES (${values})`,
+      order: 0,
     };
-    return db.query(query);
+  }
+}
+
+export class DeleteQuery<
+  T extends QueryResultRow = any
+> extends ConditionalQuery<T> {
+  constructor(table: string) {
+    super(table, true);
+    this.statements.start = {
+      query: `DELETE FROM ${this.table}`,
+      order: 0,
+    };
+  }
+}
+
+export class UpdateQuery<
+  T extends QueryResultRow = any
+> extends ConditionalQuery<T> {
+  constructor(table: string, object: Record<string, QueryFieldValue>) {
+    super(table, true);
+    const fields = Object.keys(object).join(",");
+    const values = Object.values(object)
+      .map((v) => Query.encodeFieldValue(v))
+      .join(",");
+    this.statements.start = {
+      query: `UPDATE ${this.table} SET (${fields}) = (${values})`,
+      order: 0,
+    };
   }
 }

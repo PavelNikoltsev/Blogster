@@ -1,7 +1,4 @@
-import type { Tag } from "./Tag";
-
-export interface Page {
-  id: number;
+export interface NewPage {
   title: string;
   description: string;
   author: string;
@@ -10,6 +7,9 @@ export interface Page {
   status: "draft" | "published";
   link: string;
   tags: number[] | [];
+}
+export interface Page extends NewPage {
+  id: number;
 }
 
 const res = await fetch("http://localhost:3001/pages");

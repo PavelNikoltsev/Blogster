@@ -1,8 +1,3 @@
-import type { Comment } from "./Comment";
-import type { Post } from "./Post";
-
-type userRoles = "client" | "admin";
-const defaultRole: userRoles = "client";
 export interface NewUser {
   name: string;
   email: string;

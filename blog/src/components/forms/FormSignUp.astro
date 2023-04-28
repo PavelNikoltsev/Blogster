@@ -1,14 +1,14 @@
 ---
-import CForm from "../custom/CForm.astro";
+import CForm from "../custom/CForm/CForm.astro";
 ---
 
 <CForm name="sign-up-form" id="sign-up-form">
-  <label for="name">Full name:</label><br />
-  <input type="text" name="name" id="sign-up-name" /><br />
-  <label for="email">Email:</label><br />
-  <input type="email" name="email" id="sign-up-email" /><br />
-  <label for="password">Password:</label><br />
-  <input type="password" name="password" id="sign-up-password" /><br />
+  <label for="name">Full name:</label>
+  <input type="text" name="name" id="sign-up-name" />
+  <label for="email">Email:</label>
+  <input type="email" name="email" id="sign-up-email" />
+  <label for="password">Password:</label>
+  <input type="password" name="password" id="sign-up-password" />
   <input type="submit" value="Sign Up" />
 </CForm>
 <script>

@@ -2,10 +2,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ES2022",
-    "moduleResolution": "nodenext",
+    // "moduleResolution": "nodenext",
     "outDir": "./dist",
     "sourceMap": true,
-    "strict": true
+    "strict": true,
+    "allowSyntheticDefaultImports":true
   },
   "include": [
     "./src/**/*"

@@ -1,9 +1,6 @@
 import cors from "cors";
 import express from "express";
-import * as Category from "./models/Category.js";
-import * as Query from "./query-builder/index.js";
-import * as User from "./models/User.js";
-import categoriesRouter from "./routes/Categories.js";
+import categories from "./routes/categories";
 import commentsRouter from "./routes/Comments.js";
 import pagesRouter from "./routes/Pages.js";
 import postsRouter from "./routes/Posts.js";
@@ -13,7 +10,8 @@ import usersRouter from "./routes/Users.js";
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/categories", categoriesRouter);
+categories.connect(app);
+
 app.use("/comments", commentsRouter);
 app.use("/pages", pagesRouter);
 app.use("/posts", postsRouter);

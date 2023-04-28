@@ -1,9 +1,4 @@
-import type { Category } from "./Category";
-import type { Comment } from "./Comment";
-import type { Tag } from "./Tag";
-
-export interface Post {
-  id: number;
+export interface NewPost {
   title: string;
   description: string;
   author: string;
@@ -12,8 +7,11 @@ export interface Post {
   status: "draft" | "published";
   link: string;
   tags: number[] | [];
+  category: number | null;
+}
+export interface Post extends NewPost {
+  id: number;
   comments: number[] | [];
-  category: number;
 }
 
 const res = await fetch("http://localhost:3001/posts");
