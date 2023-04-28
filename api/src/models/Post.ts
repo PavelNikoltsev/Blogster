@@ -1,8 +1,5 @@
 import db from "../db/index.js";
-import { Category } from "./Category.js";
-import { Comment } from "./Comment.js";
 import { IModel, Model, ModelInsertable } from "./Model.js";
-import { Tag } from "./Tag.js";
 import * as Query from "../query-builder/index.js";
 
 export interface IPostInsertable {
@@ -13,9 +10,9 @@ export interface IPostInsertable {
   slug: string;
   status: "draft" | "published";
   link: string;
-  tags: Tag[] | [];
-  comments: Comment[] | [];
-  category: Category;
+  tags: number[] | [];
+  comments: number[] | [];
+  category: number;
 }
 
 export class PostInsertable extends ModelInsertable<IPostInsertable> {
@@ -26,9 +23,9 @@ export class PostInsertable extends ModelInsertable<IPostInsertable> {
   declare slug: string;
   declare status: "draft" | "published";
   declare link: string;
-  declare tags: Tag[] | [];
-  declare comments: Comment[] | [];
-  declare category: Category;
+  declare tags: number[] | [];
+  declare comments: number[] | [];
+  declare category: number;
   async create() {
     const fields = [];
     const values = [];
@@ -89,9 +86,9 @@ export class Post extends Model<IPost> {
   declare slug: string;
   declare status: "draft" | "published";
   declare link: string;
-  declare tags: Tag[];
-  declare comments: Comment[] | [];
-  declare category: Category;
+  declare tags: number[];
+  declare comments: number[] | [];
+  declare category: number;
 }
 
 export function test() {
@@ -109,9 +106,9 @@ async function init() {
         slug TEXT NOT NULL,
         status TEXT NOT NULL,
         link TEXT NOT NULL,
-        tags TEXT[],
-        comments TEXT[],
-        category TEXT,
+        tags INTEGER[],
+        comments INTEGER[],
+        category INTEGER,
         created TIMESTAMP DEFAULT NOW(),
         updated TIMESTAMP
       )`,

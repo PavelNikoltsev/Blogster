@@ -1,0 +1,43 @@
+---
+import CForm from "../custom/CForm.astro";
+---
+
+<CForm name="sign-up-form" id="sign-up-form">
+  <label for="name">Full name:</label><br />
+  <input type="text" name="name" id="sign-up-name" /><br />
+  <label for="email">Email:</label><br />
+  <input type="email" name="email" id="sign-up-email" /><br />
+  <label for="password">Password:</label><br />
+  <input type="password" name="password" id="sign-up-password" /><br />
+  <input type="submit" value="Sign Up" />
+</CForm>
+<script>
+  import { type NewUser, users } from "../../models/User";
+  import { fetcher } from "../../utils/fetcher";
+  const form = document.getElementById("sign-up-form");
+  if (!form) {
+    throw new Error("Sign up form not found in DOM");
+  }
+  async function signUp() {
+    const user: NewUser = {
+      name: (document.getElementById("sign-up-name") as HTMLInputElement).value,
+      email: (document.getElementById("sign-up-email") as HTMLInputElement)
+        .value,
+      password: (
+        document.getElementById("sign-up-password") as HTMLInputElement
+      ).value,
+      role: "client",
+    };
+    const dbUser = users.find((u) => u.email === user.email);
+    if (dbUser) {
+      alert("A user with the specified email already exists");
+    } else {
+      await fetcher.post("/users", user);
+      alert("The user was successfully created");
+    }
+  }
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    signUp();
+  });
+</script>

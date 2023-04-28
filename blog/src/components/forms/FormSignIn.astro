@@ -1,0 +1,64 @@
+---
+import CForm from "../custom/CForm.astro";
+---
+
+<CForm name="sign-in-form" id="sign-in-form">
+  <label for="email">Email:</label><br />
+  <input
+    type="email"
+    name="email"
+    id="sign-in-email"
+    placeholder="Type your email..."
+  /><br />
+  <label for="password">Password:</label><br />
+  <input
+    type="password"
+    name="password"
+    id="sign-in-password"
+    placeholder="Type your password..."
+  /><br />
+  <input type="submit" value="Sign In" />
+</CForm>
+<script>
+  import { users } from "../../models/User";
+
+  const form = document.getElementById("sign-in-form");
+  if (!form) {
+    throw new Error("Sign in form not found in DOM");
+  }
+  async function signIn() {
+    interface Credentials {
+      email: string;
+      password: string;
+    }
+    const credentials: Credentials = {
+      email: (document.getElementById("sign-in-email") as HTMLInputElement)
+        .value,
+      password: (
+        document.getElementById("sign-in-password") as HTMLInputElement
+      ).value,
+    };
+    const dbUser = users.find((u) => {
+      if (
+        u.email === credentials.email &&
+        u.password === credentials.password
+      ) {
+        return u;
+      } else {
+        return undefined;
+      }
+    });
+    if (dbUser) {
+      localStorage.setItem("CurrentUser", JSON.stringify(dbUser));
+      window.location.href = "http://localhost:3000/profile";
+    } else {
+      alert(
+        `The user with this email does not exist or the data entered is incorrect`
+      );
+    }
+  }
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    signIn();
+  });
+</script>

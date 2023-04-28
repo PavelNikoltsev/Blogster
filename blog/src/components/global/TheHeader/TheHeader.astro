@@ -1,24 +1,40 @@
 ---
+import CModalWindow from "../../custom/CModalWindow.astro";
+import FormSignUp from "../../forms/FormSignUp.astro";
+import FormSignIn from "../../forms/FormSignIn.astro";
+import UserInfo from "./UserInfo.vue";
 ---
 
 <header>
-  <button class="sign-in-button">Sign In</button>
-  <button class="sign-up-button">Sign Up</button>
+  <nav>
+    <button class="sign-in-button">Sign In</button>
+    <button class="sign-up-button">Sign Up</button>
+    <UserInfo client:only />
+  </nav>
+  <CModalWindow id="sign-up-modal">
+    <FormSignUp />
+  </CModalWindow>
+  <CModalWindow id="sign-in-modal">
+    <FormSignIn />
+  </CModalWindow>
 </header>
 <script>
   import { modalOpen } from "../../../utils";
   const signInButton = document.querySelector(".sign-in-button");
-  signInButton?.addEventListener("click", () => modalOpen("sign-in-form"));
+  signInButton?.addEventListener("click", () => modalOpen("sign-in-modal"));
   const signUpButton = document.querySelector(".sign-up-button");
-  signUpButton?.addEventListener("click", () => modalOpen("sign-up-form"));
+  signUpButton?.addEventListener("click", () => modalOpen("sign-up-modal"));
 </script>
 <style lang="postcss" is:global>
   header {
     height: 50px;
     display: flex;
     background-color: #36454f;
-    color: #fff;
     justify-content: center;
     gap: 20px;
+    nav {
+      display: flex;
+      gap: 20px;
+    }
   }
 </style>

@@ -1,6 +1,5 @@
 import db from "../db/index.js";
 import { IModel, Model, ModelInsertable } from "./Model.js";
-import { Tag } from "./Tag.js";
 import * as Query from "../query-builder/index.js";
 
 export interface IPageInsertable {
@@ -11,7 +10,7 @@ export interface IPageInsertable {
   slug: string;
   status: "draft" | "published";
   link: string;
-  tags: Tag[] | [];
+  tags: number[] | [];
 }
 
 export class PageInsertable extends ModelInsertable<IPageInsertable> {
@@ -22,7 +21,7 @@ export class PageInsertable extends ModelInsertable<IPageInsertable> {
   declare slug: string;
   declare status: "draft" | "published";
   declare link: string;
-  declare tags: Tag[] | [];
+  declare tags: number[] | [];
   async create() {
     const fields = [];
     const values = [];
@@ -82,7 +81,7 @@ export class Page extends Model<IPage> {
   declare slug: string;
   declare status: "draft" | "published";
   declare link: string;
-  declare tags: Tag[];
+  declare tags: number[];
 }
 
 export function test() {
@@ -100,7 +99,7 @@ async function init() {
         slug TEXT NOT NULL,
         status TEXT NOT NULL,
         link TEXT NOT NULL,
-        tags TEXT[],
+        tags INTEGER[],
         created TIMESTAMP DEFAULT NOW(),
         updated TIMESTAMP
       )`,

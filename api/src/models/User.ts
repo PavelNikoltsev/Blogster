@@ -9,8 +9,8 @@ export interface IUserInsertable {
   email: string;
   password: string;
   role: "client" | "admin";
-  posts: Post[] | [];
-  comments: Comment[] | [];
+  posts?: number[] | [];
+  comments?: number[] | [];
 }
 
 export class UserInsertable extends ModelInsertable<IUserInsertable> {
@@ -18,8 +18,8 @@ export class UserInsertable extends ModelInsertable<IUserInsertable> {
   declare email: string;
   declare password: string;
   declare role: "client" | "admin";
-  declare posts: Post[] | [];
-  declare comments: Comment[] | [];
+  declare posts?: number[] | [];
+  declare comments?: number[] | [];
   async create() {
     const fields = [];
     const values = [];
@@ -77,8 +77,8 @@ export class User extends Model<IUser> {
   declare email: string;
   declare password: string;
   declare role: "client" | "admin";
-  declare posts: Post[] | [];
-  declare comments: Comment[] | [];
+  declare posts?: number[] | [];
+  declare comments?: number[] | [];
 }
 
 export function test() {
@@ -93,8 +93,8 @@ async function init() {
         email TEXT NOT NULL,
         password TEXT NOT NULL,
         role TEXT NOT NULL,
-        posts TEXT[],
-        comments TEXT[],
+        posts INTEGER[],
+        comments INTEGER[],
         created TIMESTAMP DEFAULT NOW(),
         updated TIMESTAMP
       )`,
