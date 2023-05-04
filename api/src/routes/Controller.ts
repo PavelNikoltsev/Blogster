@@ -1,13 +1,23 @@
 import { RequestHandler } from "express";
-import { IModelInsertable, Model, ModelConstructor } from "../models/Model";
+import { IModelInsertable, Model, ModelConstructor } from "../models/Model.js";
 import express from "express";
 import * as core from "express-serve-static-core";
+import QueryString from "qs";
 
 export interface Route {
   method: "get" | "post" | "put" | "delete";
   path: string;
   handler: RequestHandler;
 }
+type handlerReq = core.Request<
+  core.ParamsDictionary,
+  any,
+  any,
+  QueryString.ParsedQs,
+  Record<string, any>
+>;
+type handlerRes = core.Response<any, Record<string, any>, number>;
+
 export interface ControllerConfig<
   I extends IModelInsertable,
   M extends Model<any, I>,
@@ -93,7 +103,12 @@ export class Controller<
     this.create();
     this.delete();
   }
-  static async handle(req, res, fn: (req, res) => Promise<any>) {
+
+  static async handle(
+    req: handlerReq,
+    res: handlerRes,
+    fn: (req: handlerReq, res: handlerRes) => Promise<any>
+  ) {
     try {
       res.send(await fn(req, res));
     } catch (err) {

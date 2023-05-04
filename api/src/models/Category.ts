@@ -1,6 +1,4 @@
-import db from "../db/index.js";
 import { IModel, IModelInsertable, Model } from "./Model.js";
-import * as Query from "../query-builder/index.js";
 
 export interface CategoryInsertable extends IModelInsertable {
   name: string;

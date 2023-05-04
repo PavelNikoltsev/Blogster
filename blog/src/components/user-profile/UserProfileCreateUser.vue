@@ -18,12 +18,12 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
-import { users } from "../../models/User";
+import { reactive } from "vue";
+import { users } from "../../models/user";
 import { fetcher } from "../../utils/fetcher";
 import CForm from "../custom/CForm/CForm.vue";
-import type { NewUser } from "../../models/User";
-const user = ref<NewUser>({
+import type { NewUser } from "../../models/user";
+const user = reactive<NewUser>({
   name: "",
   email: "",
   password: "",
@@ -31,11 +31,11 @@ const user = ref<NewUser>({
 });
 
 async function createUser() {
-  const dbUser = users.find((u) => u.email === user.value.email);
+  const dbUser = users.find((u) => u.email === user.email);
   if (dbUser) {
     alert("A user with that email already exists");
   } else {
-    await fetcher.post("/users", user.value);
+    await fetcher.post("/users", user);
     alert("The user was created successfully");
   }
 }

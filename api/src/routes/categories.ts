@@ -1,5 +1,5 @@
-import { Category } from "../models/Category";
-import { Controller } from "./Controller";
+import { Category } from "../models/Category.js";
+import { Controller } from "./Controller.js";
 const categories = new Controller({
   path: "/categories",
   modelConstructor: Category,

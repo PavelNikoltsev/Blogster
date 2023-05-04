@@ -15,6 +15,7 @@ const props = defineProps<{
 <style lang="postcss">
 .custom-form {
   max-width: 600px;
+  margin: 30px auto;
   > form {
     display: grid;
     gap: 20px;

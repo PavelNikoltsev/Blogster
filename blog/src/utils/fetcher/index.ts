@@ -5,7 +5,8 @@ export class Fetcher {
   }
   async get(target: string) {
     const res = await fetch(`${this.url}${target}`);
-    return await res.json();
+    const result = await res.json();
+    return result.rows;
   }
   async post<Type>(target: string, body: Type) {
     const res = await fetch(`${this.url}${target}`, {

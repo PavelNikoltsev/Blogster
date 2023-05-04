@@ -37,13 +37,13 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import { posts } from "../../models/Post";
-import { categories } from "../../models/Category";
-import { tags } from "../../models/Tag";
+import { posts } from "../../models/post";
+import { categories } from "../../models/category";
+import { tags } from "../../models/tag";
 import { fetcher } from "../../utils/fetcher";
 import CForm from "../custom/CForm/CForm.vue";
-import type { NewPost } from "../../models/Post";
-import type { User } from "../../models/User";
+import type { NewPost } from "../../models/post";
+import type { User } from "../../models/user";
 const props = defineProps<{
   user: User;
 }>();

@@ -14,8 +14,8 @@
 </template>
 <script lang="ts" setup>
 import { reactive } from "vue";
-import type { NewCategory } from "../../models/Category";
-import { categories } from "../../models/Category";
+import type { NewCategory } from "../../models/category";
+import { categories } from "../../models/category";
 import { fetcher } from "../../utils/fetcher";
 import CForm from "../custom/CForm/CForm.vue";
 const category = reactive<NewCategory>({});

@@ -1,9 +1,3 @@
-// SELECT * FROM table_name WHERE id=12 AND name='test' LIMIT 50 OFFSET 100 ORDER BY id;
-// SELECT * FROM table_name WHERE id IN (1,2,3) AND categories={1,2,3} AND name='test' LIMIT 50 OFFSET 100 ORDER BY id;
-// INSERT INTO table_name (name) VALUES ('test') RETURNING *;
-// DELETE FROM table_name WHERE id=12 RETURNING *;
-// UPDATE table_name SET (name) = ('test') WHERE id=12 RETURNING *;
-
 import { QueryResultRow } from "pg";
 import db from "../db/index.js";
 
@@ -46,7 +40,7 @@ export class Query<T extends QueryResultRow = any> {
         return `{${v.map((w) => Query.encodeFieldValue(w)).join(",")}}`;
       throw new Error(`Invalid type for QueryFieldValue:object ${v}`);
     }
-    return JSON.stringify(v);
+    return JSON.stringify(v).replaceAll('"', "'");
   }
   select(fields: "*" | string[] | string = "*") {
     return new SelectQuery<T>(this.table, fields);
@@ -61,7 +55,7 @@ export class Query<T extends QueryResultRow = any> {
     return new DeleteQuery<T>(this.table);
   }
   async run() {
-    return db.query<T>(
+    return await db.query<T>(
       Object.values(this.statements)
         .sort((a, b) => a.order - b.order)
         .map((q) => q.query)

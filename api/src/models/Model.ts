@@ -35,14 +35,14 @@ export class Model<T extends IModel, I extends IModelInsertable>
     }
   }
   async delete() {
-    return db
+    return await db
       .table<this>((this.constructor as typeof Model).table)
       .delete()
       .where("id", this.id)
       .run();
   }
   async update(model: I) {
-    return db
+    return await db
       .table<this>((this.constructor as typeof Model).table)
       .update(model)
       .where("id", this.id)
@@ -55,7 +55,7 @@ export class Model<T extends IModel, I extends IModelInsertable>
     offset: number = 0
   ) {
     return new this(
-      db
+      await db
         .table<M[]>((this as any as typeof Model).table)
         .select()
         .limit(limit)
@@ -65,7 +65,7 @@ export class Model<T extends IModel, I extends IModelInsertable>
   }
   static async find<M extends new (...args: any) => any>(this: M, id: number) {
     return new this(
-      db
+      await db
         .table<M[]>((this as any as typeof Model).table)
         .select()
         .where("id", id)
@@ -78,7 +78,7 @@ export class Model<T extends IModel, I extends IModelInsertable>
     value: QueryFieldValue
   ) {
     return new this(
-      db
+      await db
         .table<M[]>((this as any as typeof Model).table)
         .select()
         .where(field, value)
@@ -90,7 +90,7 @@ export class Model<T extends IModel, I extends IModelInsertable>
     model: IModelInsertable
   ) {
     return new this(
-      db
+      await db
         .table<M[]>((this as any as typeof Model).table)
         .insert(model)
         .run()

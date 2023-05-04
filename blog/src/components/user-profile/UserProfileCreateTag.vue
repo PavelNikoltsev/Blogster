@@ -13,23 +13,19 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
-import { tags } from "../../models/Tag";
+import { reactive } from "vue";
+import { tags } from "../../models/tag";
 import { fetcher } from "../../utils/fetcher";
 import CForm from "../custom/CForm/CForm.vue";
-import type { NewTag } from "../../models/Tag";
-const tag = ref<NewTag>({
-  name: "",
-  link: "",
-  slug: "",
-});
+import type { NewTag } from "../../models/tag";
+const tag = reactive<NewTag>({});
 
 async function createTag() {
-  const dbTag = tags.find((t) => t.name === tag.value.name);
+  const dbTag = tags.find((t) => t.name === tag.name);
   if (dbTag) {
     alert("A tag with that name already exists");
   } else {
-    await fetcher.post("/tags", tag.value);
+    await fetcher.post("/tags", tag);
     alert("The tag was created successfully");
   }
 }

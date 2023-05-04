@@ -12,7 +12,7 @@ import CForm from "../custom/CForm/CForm.astro";
   <input type="submit" value="Sign Up" />
 </CForm>
 <script>
-  import { type NewUser, users } from "../../models/User";
+  import type { NewUser } from "../../models/user";
   import { fetcher } from "../../utils/fetcher";
   const form = document.getElementById("sign-up-form");
   if (!form) {
@@ -28,12 +28,14 @@ import CForm from "../custom/CForm/CForm.astro";
       ).value,
       role: "client",
     };
-    const dbUser = users.find((u) => u.email === user.email);
-    if (dbUser) {
-      alert("A user with the specified email already exists");
-    } else {
-      await fetcher.post("/users", user);
-      alert("The user was successfully created");
+    const res = await fetcher.post("/sessions/signup", user);
+    if (res.status === 200) {
+      alert("User created");
+      return;
+    }
+    if (res.status === 404) {
+      alert("User already exists");
+      return;
     }
   }
   form.addEventListener("submit", (event) => {

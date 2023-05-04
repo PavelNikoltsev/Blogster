@@ -1,8 +1,6 @@
-import db from "../db/index.js";
-import { IModel, Model, ModelInsertable } from "./Model.js";
-import * as Query from "../query-builder/index.js";
+import { IModel, IModelInsertable, Model } from "./Model.js";
 
-export interface IPageInsertable {
+export interface PageInsertable extends IModelInsertable {
   title: string;
   description: string;
   author: string;
@@ -13,85 +11,14 @@ export interface IPageInsertable {
   tags: number[] | [];
 }
 
-export class PageInsertable extends ModelInsertable<IPageInsertable> {
-  declare title: string;
-  declare description: string;
-  declare author: string;
-  declare content: string;
-  declare slug: string;
-  declare status: "draft" | "published";
+export interface IPage extends PageInsertable, IModel {}
+
+export class Page extends Model<IPage, PageInsertable> {
+  declare name: string;
   declare link: string;
-  declare tags: number[] | [];
-  async create() {
-    const fields = [];
-    const values = [];
-    for (const c in this) {
-      fields.push(c);
-      values.push(this[c]);
-    }
-    return await new Query.InsertQuery(
-      "pages",
-      fields,
-      values as string[]
-    ).run();
-  }
-  async update(id: number) {
-    const fields = [];
-    const values = [];
-    for (const c in this) {
-      fields.push(c);
-      values.push(this[c]);
-    }
-    return await new Query.UpdateQuery("pages", fields, values as string[])
-      .where("id", id)
-      .run();
-  }
-}
-export async function deletePage(id: number) {
-  return await new Query.DeleteQuery("pages").where("id", id).run();
-}
-export async function getPage(id: number) {
-  return await new Query.SelectQuery("pages").where("id", id).run();
-}
-export async function listPages() {
-  return await new Query.SelectQuery("pages").run();
-}
-export async function patchPage(
-  id: number,
-  data: Record<string, string | number | boolean>
-) {
-  const fields = [];
-  const values = [];
-  for (const c in data) {
-    fields.push(c);
-    values.push(data[c]);
-  }
-  return await new Query.UpdateQuery("pages", fields, values)
-    .where("id", id)
-    .run();
-}
-
-export interface IPage extends IPageInsertable, IModel {}
-
-export class Page extends Model<IPage> {
-  declare title: string;
-  declare description: string;
-  declare author: string;
-  declare content: string;
   declare slug: string;
-  declare status: "draft" | "published";
-  declare link: string;
-  declare tags: number[];
-}
-
-export function test() {
-  console.log("pages");
-}
-
-async function init() {
-  await db.createTable(
-    `CREATE TABLE IF NOT EXISTS pages (
-        id SERIAL PRIMARY KEY,
+  static table = "pages";
+  static fields = `id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
         author TEXT NOT NULL,
@@ -101,9 +28,7 @@ async function init() {
         link TEXT NOT NULL,
         tags INTEGER[],
         created TIMESTAMP DEFAULT NOW(),
-        updated TIMESTAMP
-      )`,
-    "pages"
-  );
+        updated TIMESTAMP`;
 }
-await init();
+
+await Page.init();

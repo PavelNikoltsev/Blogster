@@ -1,5 +1,4 @@
 import pg, { QueryResultRow } from "pg";
-import { IModel, Model } from "../models/Model.js";
 import { Query } from "../query-builder/index.js";
 const { Client } = pg;
 

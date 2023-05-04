@@ -6,15 +6,17 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
-const res = localStorage.getItem("CurrentUser") || "";
-const user = ref();
-if (res) {
-  user.value = JSON.parse(res);
-}
+import type { User } from "../../../models/user";
+import { fetcher } from "../../../utils/fetcher";
+
+const reqBody = {
+  token: localStorage.getItem("SessionToken"),
+};
+const res = await fetcher.post("/sessions/user", reqBody);
+const user: User = res.user;
+console.log(user);
 function logout() {
-  localStorage.setItem("CurrentUser", "");
-  user.value = "";
+  localStorage.setItem("SessionToken", "");
   window.location.href = "/";
 }
 </script>
