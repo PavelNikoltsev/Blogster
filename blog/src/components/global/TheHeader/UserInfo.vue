@@ -14,7 +14,6 @@ const reqBody = {
 };
 const res = await fetcher.post("/sessions/user", reqBody);
 const user: User = res.user;
-console.log(user);
 function logout() {
   localStorage.setItem("SessionToken", "");
   window.location.href = "/";

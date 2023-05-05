@@ -9,6 +9,3 @@ export interface User extends NewUser {
   posts?: number[] | [];
   comments?: number[] | [];
 }
-
-const res = await fetch("http://localhost:3001/users");
-export const users: User[] = await res.json();

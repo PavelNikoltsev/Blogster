@@ -1,10 +1,3 @@
----
-export interface Props {
-  id: string;
-}
-const { id } = Astro.props;
----
-
 <template>
   <div class="modal-window" :id="props.id">
     <div class="modal-window-content">

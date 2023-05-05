@@ -1,5 +1,3 @@
-import e from "cors";
-import { Model } from "../models/Model.js";
 import { Session, SessionInsertable } from "../models/Session.js";
 import { User } from "../models/User.js";
 import { Query } from "../query-builder/index.js";
@@ -42,39 +40,40 @@ const sessions = new Controller({
             };
             return session;
           }
-          const users = await new Query("users").select().run();
-          const existUser: User = users.rows.find((u) => {
-            if (
-              u.email === req.body.email &&
-              u.password === req.body.password
-            ) {
-              return u;
+          const getSessions = await new Query("sessions").select().run();
+          const existSession: Session = getSessions.rows.find((s: Session) => {
+            if (s.token === req.body.token) {
+              return s;
             } else {
               return undefined;
             }
           });
-          if (existUser) {
-            const getSessions = await new Query("sessions").select().run();
-            const existSession: Session = getSessions.rows.find(
-              (s: Session) => {
-                if (s.userid === existUser.id && s.token === req.body.token) {
-                  return s;
-                } else {
-                  return undefined;
-                }
-              }
-            );
-            if (existSession) {
-              if (existSession.expired < new Date().toISOString()) {
-                res
-                  .status(401)
-                  .send({ message: "Session expired", status: 401 });
-              } else {
-                res
-                  .status(201)
-                  .send({ message: "Redirecting to profile", status: 201 });
-              }
+          if (existSession) {
+            if (existSession.expired < new Date().toISOString()) {
+              res.status(401).send({
+                message: "Session expired",
+                status: 401,
+              });
             } else {
+              res.status(201).send({
+                message: "Redirecting to profile",
+                status: 201,
+                userid: existSession.userid,
+              });
+            }
+          } else {
+            const users = await new Query("users").select().run();
+            const existUser: User = users.rows.find((u) => {
+              if (
+                u.email === req.body.email &&
+                u.password === req.body.password
+              ) {
+                return u;
+              } else {
+                return undefined;
+              }
+            });
+            if (existUser) {
               const session = await newSession();
               res.status(200).send({
                 message: "Session created",
@@ -83,12 +82,12 @@ const sessions = new Controller({
               });
               sessions.modelConstructor.create(session);
               return;
+            } else {
+              res.status(404).send({
+                message: "User not found or password is incorrect",
+                status: 404,
+              });
             }
-          } else {
-            res.status(404).send({
-              message: "User not found or password is incorrect",
-              status: 404,
-            });
           }
         });
       },
@@ -127,12 +126,19 @@ const sessions = new Controller({
             .select()
             .where("token", req.body.token)
             .run();
-          const userid = session.rows[0].userid;
-          const userReq = await new Query("users")
-            .select()
-            .where("id", userid)
-            .run();
-          res.status(200).send({ user: userReq.rows[0] });
+          if (session.rows[0].expired < new Date().toISOString()) {
+            res.status(401).send({
+              message: "Session expired",
+              status: 401,
+            });
+          } else {
+            const userid = session.rows[0].userid;
+            const userReq = await new Query("users")
+              .select()
+              .where("id", userid)
+              .run();
+            res.status(200).send({ user: userReq.rows[0] });
+          }
         });
       },
     },

@@ -18,6 +18,7 @@
     />
     <input type="submit" value="Sign In" />
   </CForm>
+  {{ credentials.token }}
 </template>
 
 <script lang="ts" setup>
@@ -28,7 +29,7 @@ import CForm from "../custom/CForm/CForm.vue";
 interface Credentials {
   email: string;
   password: string;
-  token?: string;
+  token: string;
 }
 
 const credentials: Credentials = reactive({
@@ -37,6 +38,7 @@ const credentials: Credentials = reactive({
   token: localStorage.getItem("SessionToken") || "",
 });
 async function signIn() {
+  credentials.token = "";
   const res = await fetcher.post("/sessions/signin", credentials);
   if (res.status === 200 || res.status === 201 || res.status === 401) {
     localStorage.setItem("SessionToken", res.token);

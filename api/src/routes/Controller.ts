@@ -18,6 +18,13 @@ type handlerReq = core.Request<
 >;
 type handlerRes = core.Response<any, Record<string, any>, number>;
 
+interface defaultRoutesOptions {
+  index?: boolean;
+  show?: boolean;
+  update?: boolean;
+  create?: boolean;
+  delete?: boolean;
+}
 export interface ControllerConfig<
   I extends IModelInsertable,
   M extends Model<any, I>,
@@ -96,12 +103,22 @@ export class Controller<
         }),
     });
   }
-  defaultRoutes() {
-    this.index();
-    this.show();
-    this.update();
-    this.create();
-    this.delete();
+  defaultRoutes(options?: defaultRoutesOptions) {
+    if (!options?.index) {
+      this.index();
+    }
+    if (!options?.show) {
+      this.show();
+    }
+    if (!options?.update) {
+      this.update();
+    }
+    if (!options?.create) {
+      this.create();
+    }
+    if (!options?.delete) {
+      this.delete();
+    }
   }
 
   static async handle(

@@ -11,6 +11,3 @@ export interface NewPage {
 export interface Page extends NewPage {
   id: number;
 }
-
-const res = await fetch("http://localhost:3001/pages");
-export const pages: Page[] = await res.json();

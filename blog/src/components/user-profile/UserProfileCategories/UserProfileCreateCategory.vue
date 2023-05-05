@@ -14,19 +14,20 @@
 </template>
 <script lang="ts" setup>
 import { reactive } from "vue";
-import type { NewCategory } from "../../models/category";
-import { categories } from "../../models/category";
-import { fetcher } from "../../utils/fetcher";
-import CForm from "../custom/CForm/CForm.vue";
+import type { NewCategory } from "../../../models/category";
+import { fetcher } from "../../../utils/fetcher";
+import CForm from "../../custom/CForm/CForm.vue";
 const category = reactive<NewCategory>({});
 
 async function createCategory() {
-  const dbCategory = categories.find((c) => c.name === category.name);
-  if (dbCategory) {
-    alert("A category with that name already exists");
-  } else {
-    await fetcher.post("/categories", category);
-    alert("The category was created successfully");
+  const res = await fetcher.post("/categories/create", category);
+  if (res.status === 200) {
+    alert("Category created");
+    return;
+  }
+  if (res.status === 404) {
+    alert("Category with one of provided parameters already exist");
+    return;
   }
 }
 </script>

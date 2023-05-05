@@ -5,6 +5,6 @@ export interface NewCategory {
 }
 export interface Category extends NewCategory {
   id: number;
+  created: string;
+  updated: string;
 }
-const res = await fetch("http://localhost:3001/categories");
-export const categories: Category[] = await res.json();

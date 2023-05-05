@@ -6,6 +6,3 @@ export interface NewComment {
 export interface Comment extends NewComment {
   id: number;
 }
-
-const res = await fetch("http://localhost:3001/comments");
-export const comments: Comment[] = await res.json();
