@@ -21,6 +21,7 @@
           <button
             @click="
               currentCategory = c.id;
+              getValsToUpdate(c.name,c.link,c.slug)
               modalOpen('category-update-modal');
             "
           >
@@ -43,7 +44,6 @@
       <input type="text" name="slug" v-model="updateCategory.slug" required />
       <input type="submit" value="Update category" />
     </CForm>
-    {{ currentCategory }}
   </CModalWindow>
 </template>
 <script lang="ts" setup>
@@ -60,6 +60,11 @@ onMounted(() => {
 });
 async function get() {
   categories.value = await fetcher.get("/categories");
+}
+function getValsToUpdate(name?: string, link?: string, slug?: string) {
+  updateCategory.name = name
+  updateCategory.link = link
+  updateCategory.slug = slug
 }
 const updateCategory: NewCategory = reactive({});
 const currentCategory = ref(0);

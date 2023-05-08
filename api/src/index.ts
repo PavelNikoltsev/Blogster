@@ -25,5 +25,3 @@ sessions.connect(app);
 app.listen(3001, () => {
   console.log("Server started on port 3001");
 });
-// const users = await new Query("users").select().run();
-// const existUser = users.rows.find((u) => u.email === req.body.email);

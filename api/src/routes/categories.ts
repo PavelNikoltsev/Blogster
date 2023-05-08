@@ -1,4 +1,4 @@
-import { Category, CategoryInsertable } from "../models/Category.js";
+import { Category } from "../models/Category.js";
 import { Query } from "../query-builder/index.js";
 import { Controller } from "./Controller.js";
 const categories = new Controller({
@@ -15,7 +15,7 @@ const categories = new Controller({
             if (
               c.name === req.body.name ||
               c.link === req.body.link ||
-              c.slug === req.body.link
+              c.slug === req.body.slug
             ) {
               return c;
             } else {
@@ -61,7 +61,5 @@ const categories = new Controller({
     },
   ],
 });
-// categories.defaultRoutes();
 categories.defaultRoutes({ create: true, update: true, delete: true });
-console.log(categories);
 export default categories;

@@ -257,8 +257,9 @@ export class UpdateQuery<
     const values = Object.values(object)
       .map((v) => Query.encodeFieldValue(v))
       .join(",");
+    const updated = new Date().toISOString();
     this.statements.start = {
-      query: `UPDATE ${this.table} SET (${fields}) = (${values})`,
+      query: `UPDATE ${this.table} SET (${fields},updated) = (${values},'${updated}')`,
       order: 0,
     };
   }

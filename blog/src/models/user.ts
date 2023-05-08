@@ -8,4 +8,6 @@ export interface User extends NewUser {
   id: number;
   posts?: number[] | [];
   comments?: number[] | [];
+  created: string;
+  updated: string;
 }

@@ -16,9 +16,16 @@ export interface PostInsertable extends IModelInsertable {
 export interface IPost extends PostInsertable, IModel {}
 
 export class Post extends Model<IPost, PostInsertable> {
-  declare name: string;
-  declare link: string;
+  declare title: string;
+  declare description: string;
+  declare author: string;
+  declare content: string;
   declare slug: string;
+  declare status: "draft" | "published";
+  declare link: string;
+  declare tags: number[] | [];
+  declare comments: number[] | [];
+  declare category: number;
   static table = "posts";
   static fields = `id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,

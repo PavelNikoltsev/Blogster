@@ -12,7 +12,7 @@ export class Tag extends Model<ITag, TagInsertable> {
   declare name: string;
   declare link: string;
   declare slug: string;
-  static table = "categories";
+  static table = "tags";
   static fields = `id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         link TEXT NOT NULL,

@@ -13,8 +13,11 @@ export interface IUser extends UserInsertable, IModel {}
 
 export class User extends Model<IUser, UserInsertable> {
   declare name: string;
-  declare link: string;
-  declare slug: string;
+  declare email: string;
+  declare password: string;
+  declare role: "client" | "admin";
+  declare posts: number[] | [];
+  declare comments: number[] | [];
   static table = "users";
   static fields = `id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,

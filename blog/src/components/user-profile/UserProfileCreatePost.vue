@@ -23,11 +23,11 @@
       <label for="link">Link:</label>
       <input type="text" name="link" v-model="post.link" required />
       <label for="tags">Tags IDs:</label>
-      <select name="tags" multiple>
+      <!-- <select name="tags" multiple>
         <option v-for="t in tags" :key="t.id" :value="t.id">
           #{{ t.id }} {{ t.name }}
         </option>
-      </select>
+      </select> -->
       <!-- <input type="text" name="tags" v-model="tagsReq" required /> -->
       <!-- <label for="category">Category ID:</label> -->
       <!-- <input type="text" name="category" v-model="categoryReq" required /> -->
@@ -37,9 +37,6 @@
 </template>
 <script lang="ts" setup>
 import { ref } from "vue";
-import { posts } from "../../models/post";
-import { categories } from "../../models/category";
-import { tags } from "../../models/tag";
 import { fetcher } from "../../utils/fetcher";
 import CForm from "../custom/CForm/CForm.vue";
 import type { NewPost } from "../../models/post";

@@ -1,7 +1,7 @@
-<!-- <template>
+<template>
   <div class="profile-create-tag">
-    <h3>Create tag:</h3>
-    <CForm name="create-tag" @submit.prevent="createTag">
+    <h3>Create category:</h3>
+    <CForm name="create-category" @submit.prevent="createTag">
       <label for="name">Name:</label>
       <input type="text" name="name" v-model="tag.name" required />
       <label for="link">Link:</label>
@@ -14,18 +14,20 @@
 </template>
 <script lang="ts" setup>
 import { reactive } from "vue";
-import { fetcher } from "../../utils/fetcher";
-import CForm from "../custom/CForm/CForm.vue";
-import type { NewTag } from "../../models/tag";
+import { fetcher } from "../../../utils/fetcher";
+import CForm from "../../custom/CForm/CForm.vue";
+import type { NewTag } from "../../../models/tag";
 const tag = reactive<NewTag>({});
 
 async function createTag() {
-  const dbTag = tags.find((t) => t.name === tag.name);
-  if (dbTag) {
-    alert("A tag with that name already exists");
-  } else {
-    await fetcher.post("/tags", tag);
-    alert("The tag was created successfully");
+  const res = await fetcher.post("/tags/create", tag);
+  if (res.status === 200) {
+    alert("Tag created");
+    return;
+  }
+  if (res.status === 404) {
+    alert("Tag with one of provided parameters already exist");
+    return;
   }
 }
-</script> -->
+</script>

@@ -5,4 +5,6 @@ export interface NewTag {
 }
 export interface Tag extends NewTag {
   id: number;
+  created: string;
+  updated: string;
 }

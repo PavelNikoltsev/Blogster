@@ -6,10 +6,12 @@ export interface NewPost {
   slug: string;
   status: "draft" | "published";
   link: string;
-  tags: number[] | [];
+  tags: string | "";
   category: number | null;
 }
 export interface Post extends NewPost {
   id: number;
   comments: number[] | [];
+  created: string;
+  updated: string;
 }

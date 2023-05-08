@@ -7,6 +7,9 @@
     <div v-else>
       <p>Your role is an admin. Here are your tools:</p>
       <UserProfileCategories />
+      <UserProfileTags />
+      <UserProfileUsers />
+      <UserProfilePosts :author="user.name" />
     </div>
   </div>
 </template>
@@ -15,6 +18,9 @@ import type { User } from "../../models/user";
 import UserProfileCategories from "./UserProfileCategories/UserProfileCategories.vue";
 
 import { fetcher } from "../../utils/fetcher";
+import UserProfileTags from "./UserProfileTags/UserProfileTags.vue";
+import UserProfileUsers from "./UserProfileUsers/UserProfileUsers.vue";
+import UserProfilePosts from "./UserProfilePosts/UserProfilePosts.vue";
 const reqBody = {
   token: localStorage.getItem("SessionToken"),
 };
