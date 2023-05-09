@@ -10,6 +10,7 @@
       <UserProfileTags />
       <UserProfileUsers />
       <UserProfilePosts :author="user.name" />
+      <UserProfilePages :author="user.name" />
     </div>
   </div>
 </template>
@@ -21,6 +22,7 @@ import { fetcher } from "../../utils/fetcher";
 import UserProfileTags from "./UserProfileTags/UserProfileTags.vue";
 import UserProfileUsers from "./UserProfileUsers/UserProfileUsers.vue";
 import UserProfilePosts from "./UserProfilePosts/UserProfilePosts.vue";
+import UserProfilePages from "./UserProfilePages/UserProfilePages.vue";
 const reqBody = {
   token: localStorage.getItem("SessionToken"),
 };

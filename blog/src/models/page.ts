@@ -6,8 +6,10 @@ export interface NewPage {
   slug: string;
   status: "draft" | "published";
   link: string;
-  tags: number[] | [];
+  tags: string | "";
 }
 export interface Page extends NewPage {
   id: number;
+  created: string;
+  updated: string;
 }
