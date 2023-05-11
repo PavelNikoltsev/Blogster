@@ -22,9 +22,8 @@
       <input type="text" name="slug" v-model="page.slug" required />
       <label for="link">Link:</label>
       <input type="text" name="link" v-model="page.link" required />
-      <label for="category">Category:</label>
       <label for="tags">Tags IDs:</label>
-      <div v-for="t in tags" :key="t.id">
+      <div v-for="t in store.tags" :key="t.id">
         <input
           type="checkbox"
           :name="t.name"
@@ -43,6 +42,7 @@ import { reactive, ref } from "vue";
 import { fetcher } from "../../../utils/fetcher";
 import CForm from "../../custom/CForm/CForm.vue";
 import type { NewPage } from "../../../models/page";
+import { store } from "../../../models/store";
 const props = defineProps<{
   author: string;
 }>();
@@ -57,7 +57,7 @@ const page = reactive<NewPage>({
   link: "",
   tags: "",
 });
-const tags = await fetcher.get("/tags");
+
 async function createPage() {
   page.tags = `{${pageTags.value.join(",")}}`;
   const res = await fetcher.post("/pages/create", page);

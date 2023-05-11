@@ -3,9 +3,7 @@
     <template v-slot:thead>
       <td>ID</td>
       <td>Title</td>
-      <td>Description</td>
       <td>Author</td>
-      <td>Content</td>
       <td>Slug</td>
       <td>Status</td>
       <td>Link</td>
@@ -19,9 +17,7 @@
       <tr v-for="p in posts" :key="p.id">
         <td>{{ p.id }}</td>
         <td>{{ p.title }}</td>
-        <td>{{ p.description }}</td>
         <td>{{ p.author }}</td>
-        <td>{{ p.content }}</td>
         <td>{{ p.slug }}</td>
         <td>{{ p.status }}</td>
         <td>{{ p.link }}</td>
@@ -78,12 +74,12 @@
       <input type="text" name="link" v-model="updatePost.link" required />
       <label for="category">Category:</label>
       <select name="category" v-model="updatePost.category">
-        <option :value="c.id" v-for="c in categories" :key="c.id">
+        <option :value="c.id" v-for="c in store.categories" :key="c.id">
           {{ c.name }}
         </option>
       </select>
       <label for="tags">Tags IDs:</label>
-      <div v-for="t in tags" :key="t.id">
+      <div v-for="t in store.tags" :key="t.id">
         <input
           type="checkbox"
           :name="t.name"
@@ -104,12 +100,11 @@ import CModalWindow from "../../custom/CModalWindow/CModalWindow.vue";
 import CTable from "../../custom/CTable/CTable.vue";
 import { modalOpen } from "../../../utils";
 import type { NewPost, Post } from "../../../models/post";
+import { store } from "../../../models/store";
 const props = defineProps<{
   author: string;
 }>();
 const posts = ref<Post[]>([]);
-const categories = await fetcher.get("/categories");
-const tags = await fetcher.get("/tags");
 const postTags = ref([]);
 onMounted(() => {
   get();

@@ -22,8 +22,8 @@ const pages = new Controller({
             return;
           } else {
             console.log(req.body);
-            pages.modelConstructor.create(req.body);
             res.status(200).send({ message: "Page created", status: 200 });
+            pages.modelConstructor.create(req.body);
             return;
           }
         });

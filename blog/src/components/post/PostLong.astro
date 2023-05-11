@@ -1,0 +1,13 @@
+---
+import type { Post } from "../../models/post";
+
+export interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+---
+
+<article>
+  <h1>{post.title}</h1>
+  <div set:html={post.content} />
+</article>

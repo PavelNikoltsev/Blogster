@@ -24,12 +24,12 @@
       <input type="text" name="link" v-model="post.link" required />
       <label for="category">Category:</label>
       <select name="category" v-model="post.category">
-        <option :value="c.id" v-for="c in categories" :key="c.id">
+        <option :value="c.id" v-for="c in store.categories" :key="c.id">
           {{ c.name }}
         </option>
       </select>
       <label for="tags">Tags IDs:</label>
-      <div v-for="t in tags" :key="t.id">
+      <div v-for="t in store.tags" :key="t.id">
         <input
           type="checkbox"
           :name="t.name"
@@ -48,6 +48,7 @@ import { reactive, ref } from "vue";
 import { fetcher } from "../../../utils/fetcher";
 import CForm from "../../custom/CForm/CForm.vue";
 import type { NewPost } from "../../../models/post";
+import { store } from "../../../models/store";
 const props = defineProps<{
   author: string;
 }>();
@@ -63,8 +64,7 @@ const post = reactive<NewPost>({
   tags: "",
   category: null,
 });
-const tags = await fetcher.get("/tags");
-const categories = await fetcher.get("/categories");
+
 async function createPost() {
   post.tags = `{${postTags.value.join(",")}}`;
   const res = await fetcher.post("/posts/create", post);

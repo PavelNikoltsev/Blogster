@@ -1,0 +1,29 @@
+---
+import PostShort from "../../../../components/post/PostShort.astro";
+import Layout from "../../../../layouts/Layout.astro";
+import { store } from "../../../../models/store";
+
+export async function getStaticPaths({ paginate }) {
+  return store.categories.map((category) => {
+    const categoryPosts = store.posts.filter((p) => p.category === category.id);
+    return paginate(categoryPosts, {
+      pageSize: 10,
+      params: { name: category.slug },
+    });
+  });
+}
+const { name } = Astro.params;
+const { page } = Astro.props;
+
+const category = store.categories.find((c) => c.slug === name);
+if (!category) {
+  throw new Error(
+    `Category #${page.data[0].categories[0]} not found in Models store`
+  );
+}
+const categoryPosts = store.posts.filter((p) => p.category === category.id);
+---
+
+<Layout>
+  {categoryPosts.map((p) => <PostShort post={p} />)}
+</Layout>

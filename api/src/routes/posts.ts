@@ -22,8 +22,8 @@ const posts = new Controller({
             return;
           } else {
             console.log(req.body);
-            posts.modelConstructor.create(req.body);
             res.status(200).send({ message: "Post created", status: 200 });
+            posts.modelConstructor.create(req.body);
             return;
           }
         });

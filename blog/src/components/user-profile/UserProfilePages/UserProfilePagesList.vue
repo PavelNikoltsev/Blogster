@@ -3,9 +3,7 @@
     <template v-slot:thead>
       <td>ID</td>
       <td>Title</td>
-      <td>Description</td>
       <td>Author</td>
-      <td>Content</td>
       <td>Slug</td>
       <td>Status</td>
       <td>Link</td>
@@ -17,9 +15,7 @@
       <tr v-for="p in pages" :key="p.id">
         <td>{{ p.id }}</td>
         <td>{{ p.title }}</td>
-        <td>{{ p.description }}</td>
         <td>{{ p.author }}</td>
-        <td>{{ p.content }}</td>
         <td>{{ p.slug }}</td>
         <td>{{ p.status }}</td>
         <td>{{ p.link }}</td>
@@ -72,7 +68,7 @@
       <label for="link">Link:</label>
       <input type="text" name="link" v-model="updatePage.link" required />
       <label for="tags">Tags IDs:</label>
-      <div v-for="t in tags" :key="t.id">
+      <div v-for="t in store.tags" :key="t.id">
         <input
           type="checkbox"
           :name="t.name"
@@ -93,11 +89,12 @@ import CModalWindow from "../../custom/CModalWindow/CModalWindow.vue";
 import CTable from "../../custom/CTable/CTable.vue";
 import { modalOpen } from "../../../utils";
 import type { NewPage, Page } from "../../../models/page";
+import { store } from "../../../models/store";
 const props = defineProps<{
   author: string;
 }>();
 const pages = ref<Page[]>([]);
-const tags = await fetcher.get("/tags");
+
 const pageTags = ref([]);
 onMounted(() => {
   get();

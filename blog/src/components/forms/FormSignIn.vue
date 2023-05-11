@@ -18,7 +18,6 @@
     />
     <input type="submit" value="Sign In" />
   </CForm>
-  {{ credentials.token }}
 </template>
 
 <script lang="ts" setup>

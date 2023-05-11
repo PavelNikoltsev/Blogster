@@ -1,0 +1,18 @@
+---
+import PostLong from "../../components/post/PostLong.astro";
+import Layout from "../../layouts/Layout.astro";
+import { store } from "../../models/store";
+
+export async function getStaticPaths() {
+  return store.pages.map((page) => ({
+    params: { slug: page.slug },
+    props: { page: page },
+  }));
+}
+
+const { page } = Astro.props;
+---
+
+<Layout>
+  <PostLong post={page} />
+</Layout>

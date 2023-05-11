@@ -24,7 +24,7 @@
             @click="
               currentUser = u.id;
               getValsToUpdate(u.name, u.email, u.password, u.role);
-              modalOpen('user-update-modal');
+              modalOpen('users-update-modal');
             "
           >
             Update
@@ -33,7 +33,7 @@
       </tr>
     </template>
   </CTable>
-  <CModalWindow id="user-update-modal">
+  <CModalWindow id="users-update-modal">
     <CForm name="user-update-form" @submit.prevent="update(currentUser)">
       <label for="name">Name:</label>
       <input type="text" name="name" v-model="updateUser.name" required />

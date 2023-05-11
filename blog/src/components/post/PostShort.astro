@@ -1,0 +1,15 @@
+---
+import type { Post } from "../../models/post";
+
+export interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+---
+
+<article>
+  <a href={`/${post.link}`}>
+    <h3>{post.title}</h3>
+    <p>{post.description}</p>
+  </a>
+</article>

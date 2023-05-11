@@ -2,10 +2,12 @@
   <h1>Hello, here is your profile {{ user.name }}</h1>
   <div>
     <div v-if="user.role === 'client'">
-      <p>Your role is a client. Here are your tools:</p>
+      <p>Your role is a client.</p>
+      <UserProfileUser :user="user" />
     </div>
     <div v-else>
-      <p>Your role is an admin. Here are your tools:</p>
+      <p>Your role is an admin.</p>
+      <UserProfileUser :user="user" />
       <UserProfileCategories />
       <UserProfileTags />
       <UserProfileUsers />
@@ -23,6 +25,7 @@ import UserProfileTags from "./UserProfileTags/UserProfileTags.vue";
 import UserProfileUsers from "./UserProfileUsers/UserProfileUsers.vue";
 import UserProfilePosts from "./UserProfilePosts/UserProfilePosts.vue";
 import UserProfilePages from "./UserProfilePages/UserProfilePages.vue";
+import UserProfileUser from "./UserProfileUser.vue";
 const reqBody = {
   token: localStorage.getItem("SessionToken"),
 };
