@@ -1,5 +1,6 @@
 ---
 import type { Post } from "../../models/post";
+import CommentsSection from "../comments/CommentsSection.vue";
 
 export interface Props {
   post: Post;
@@ -11,3 +12,4 @@ const { post } = Astro.props;
   <h1>{post.title}</h1>
   <div set:html={post.content} />
 </article>
+<CommentsSection post={post} client:only />

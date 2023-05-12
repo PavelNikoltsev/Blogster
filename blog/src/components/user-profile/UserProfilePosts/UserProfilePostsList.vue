@@ -20,7 +20,9 @@
         <td>{{ p.author }}</td>
         <td>{{ p.slug }}</td>
         <td>{{ p.status }}</td>
-        <td>{{ p.link }}</td>
+        <td>
+          <a :href="p.link">{{ p.link }}</a>
+        </td>
         <td>{{ p.tags }}</td>
         <td>{{ p.comments }}</td>
         <td>{{ p.category }}</td>

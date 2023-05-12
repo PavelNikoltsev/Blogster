@@ -12,7 +12,9 @@
       <tr v-for="c in categories" :key="c.id">
         <td>{{ c.id }}</td>
         <td>{{ c.name }}</td>
-        <td>{{ c.link }}</td>
+        <td>
+          <a :href="c.link">{{ c.link }}</a>
+        </td>
         <td>{{ c.slug }}</td>
         <td>{{ c.created }}</td>
         <td>{{ c.updated }}</td>
@@ -21,7 +23,7 @@
           <button
             @click="
               currentCategory = c.id;
-              getValsToUpdate(c.name,c.link,c.slug)
+              getValsToUpdate(c.name, c.link, c.slug);
               modalOpen('category-update-modal');
             "
           >
@@ -62,9 +64,9 @@ async function get() {
   categories.value = await fetcher.get("/categories");
 }
 function getValsToUpdate(name?: string, link?: string, slug?: string) {
-  updateCategory.name = name
-  updateCategory.link = link
-  updateCategory.slug = slug
+  updateCategory.name = name;
+  updateCategory.link = link;
+  updateCategory.slug = slug;
 }
 const updateCategory: NewCategory = reactive({});
 const currentCategory = ref(0);

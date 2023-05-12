@@ -59,6 +59,7 @@ const page = reactive<NewPage>({
 });
 
 async function createPage() {
+  page.link = `http://localhost:3000/page/${page.link}`;
   page.tags = `{${pageTags.value.join(",")}}`;
   const res = await fetcher.post("/pages/create", page);
   if (res.status === 200) {
