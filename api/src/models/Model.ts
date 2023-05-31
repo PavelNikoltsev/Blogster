@@ -34,12 +34,17 @@ export class Model<T extends IModel, I extends IModelInsertable>
       self[d] = data[d];
     }
   }
+  async beforeDelete() {}
+  async afterDelete() {}
   async delete() {
-    return await db
+    await this.beforeDelete();
+    const res = await db
       .table<this>((this.constructor as typeof Model).table)
       .delete()
       .where("id", this.id)
       .run();
+    await this.afterDelete();
+    return res;
   }
   async update(model: I) {
     return await db

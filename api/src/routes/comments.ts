@@ -7,10 +7,10 @@ const comments = new Controller({
   routes: [
     {
       method: "post",
-      path: "/create",
+      path: "/",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
-          comments.modelConstructor.create(req.body);
+          await comments.modelConstructor.create(req.body);
           res.status(200).send({ message: "Comment created", status: 200 });
           return;
         });
@@ -18,12 +18,25 @@ const comments = new Controller({
     },
     {
       method: "delete",
-      path: "/delete/:id",
+      path: "/:id",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
           const id = req.params.id;
           await new Query("comments").delete().where("id", id).run();
+          await new Query("comments").delete().where("parent", id).run();
           res.status(200).send({ message: "Comment deleted", status: 200 });
+        });
+      },
+    },
+    {
+      method: "post",
+      path: "/:id/reply",
+      handler: (req, res) => {
+        Controller.handle(req, res, async () => {
+          const response = (await comments.modelConstructor.create(
+            req.body.reply
+          )) as any;
+          res.status(200).send({ message: "Reply sent", status: 200 });
         });
       },
     },

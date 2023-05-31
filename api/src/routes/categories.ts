@@ -7,7 +7,7 @@ const categories = new Controller({
   routes: [
     {
       method: "post",
-      path: "/create",
+      path: "/",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
           const getCategories = await new Query("categories").select().run();
@@ -39,7 +39,7 @@ const categories = new Controller({
     },
     {
       method: "put",
-      path: "/update/:id",
+      path: "/:id",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
           const id = req.params.id;
@@ -50,7 +50,7 @@ const categories = new Controller({
     },
     {
       method: "delete",
-      path: "/delete/:id",
+      path: "/:id",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
           const id = req.params.id;

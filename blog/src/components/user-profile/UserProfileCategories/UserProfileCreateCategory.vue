@@ -21,7 +21,7 @@ const category = reactive<NewCategory>({});
 
 async function createCategory() {
   category.link = `http://localhost:3000/category/${category.link}/page/1`;
-  const res = await fetcher.post("/categories/create", category);
+  const res = await fetcher.post("/categories", category);
   if (res.status === 200) {
     alert("Category created");
     return;

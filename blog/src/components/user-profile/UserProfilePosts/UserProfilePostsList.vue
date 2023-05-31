@@ -49,6 +49,9 @@
             Update
           </button>
         </td>
+        <td v-if="p.status === 'draft'">
+          <button @click="publishPost(p.id)">Publish</button>
+        </td>
       </tr>
     </template>
   </CTable>
@@ -147,16 +150,27 @@ function getValsToUpdate(
 const currentPost = ref(0);
 async function update(id: number) {
   updatePost.tags = `{${postTags.value.join(",")}}`;
-  const res = await fetcher.put(`/posts/update/${id}`, updatePost);
+  const res = await fetcher.put(`/posts/${id}`, updatePost);
   if (res.status === 200) {
     alert("post updated");
   }
   get();
 }
 async function deletePost(id: number) {
-  const res = await fetcher.delete(`/posts/delete/${id}`);
+  const res = await fetcher.delete(`/posts/${id}`);
   if (res.status === 200) {
     alert("post deleted");
+  } else {
+    alert("something went wrong");
+  }
+  get();
+}
+async function publishPost(id: number) {
+  const res = await fetcher.put(`/posts/${id}`, { status: "published" });
+  if (res.status === 200) {
+    alert("post published");
+  } else {
+    alert("something went wrong");
   }
   get();
 }

@@ -89,14 +89,14 @@ function getValsToUpdate(
 }
 const currentUser = ref(0);
 async function update(id: number) {
-  const res = await fetcher.put(`/users/update/${id}`, updateUser);
+  const res = await fetcher.put(`/users/${id}`, updateUser);
   if (res.status === 200) {
     alert("User updated");
   }
   get();
 }
 async function deleteUser(id: number) {
-  const res = await fetcher.delete(`/users/delete/${id}`);
+  const res = await fetcher.delete(`/users/${id}`);
   if (res.status === 200) {
     alert("User deleted");
   }

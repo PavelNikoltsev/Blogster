@@ -5,7 +5,7 @@ import FormSignIn from "../../forms/FormSignIn.vue";
 import UserInfo from "./UserInfo.vue";
 ---
 
-<header>
+<header class="wrap">
   <nav>
     <a href="/">Home</a>
     <a href="/sign-in">Sign In</a>
@@ -22,20 +22,21 @@ import UserInfo from "./UserInfo.vue";
 
 <style lang="postcss" is:global>
   header {
-    height: 50px;
+    height: var(--s-12);
     display: flex;
-    background-color: #36454f;
+    background-color: var(--c-bg-secondary);
     justify-content: center;
-    gap: 20px;
+    gap: var(--s-5);
+    width: 100%;
     nav {
       display: flex;
-      gap: 20px;
+      gap: var(--s-5);
       align-items: center;
       > a {
         text-decoration: none;
-        padding: 10px 20px;
+        padding: var(--s-3) var(--s-5);
         background-color: #fff;
-        color: #000;
+        color: var(--c-text);
       }
     }
   }

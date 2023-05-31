@@ -5,6 +5,14 @@ import { store } from "../models/store";
 ---
 
 <Layout title="Welcome to Astro.">
-  <h2>Articles:</h2>
-  {store.posts.map((p) => <PostShort post={p} />)}
+  <section id="articles">
+    <h2>Articles:</h2>
+    {
+      store.posts.map((p) => {
+        if (p.status === "published") {
+          return <PostShort post={p} />;
+        }
+      })
+    }
+  </section>
 </Layout>

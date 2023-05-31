@@ -76,9 +76,10 @@ export class Controller<
       method: "put",
       path: "/:id",
       handler: (req, res) =>
-        Controller.handle(req, res, () => {
+        Controller.handle(req, res, async () => {
           const id = Number(req.params.id);
-          return this.modelConstructor.find(id);
+          const m = await this.modelConstructor.find(id);
+          return m.update(req.body);
         }),
     });
   }

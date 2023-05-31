@@ -19,10 +19,16 @@ const { title, description } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <script
+      src="https://kit.fontawesome.com/e3b6354f0c.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <TheHeader />
-    <slot />
+    <main class="wrap">
+      <slot />
+    </main>
     <TheFooter />
   </body>
 </html>

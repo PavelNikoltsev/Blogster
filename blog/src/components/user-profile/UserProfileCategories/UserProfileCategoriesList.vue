@@ -71,14 +71,14 @@ function getValsToUpdate(name?: string, link?: string, slug?: string) {
 const updateCategory: NewCategory = reactive({});
 const currentCategory = ref(0);
 async function update(id: number) {
-  const res = await fetcher.put(`/categories/update/${id}`, updateCategory);
+  const res = await fetcher.put(`/categories/${id}`, updateCategory);
   if (res.status === 200) {
     alert("Category updated");
   }
   get();
 }
 async function deleteCategory(id: number) {
-  const res = await fetcher.delete(`/categories/delete/${id}`);
+  const res = await fetcher.delete(`/categories/${id}`);
   if (res.status === 200) {
     alert("Category deleted");
   }

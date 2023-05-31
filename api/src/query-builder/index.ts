@@ -34,13 +34,22 @@ export class Query<T extends QueryResultRow = any> {
       };
     }
   }
-  static encodeFieldValue(v: QueryFieldValue): string {
+  static encodeFieldValue(v: QueryFieldValue, singleQuote = true): string {
     if (typeof v === "object" && v !== null) {
       if (Array.isArray(v))
-        return `{${v.map((w) => Query.encodeFieldValue(w)).join(",")}}`;
+        return `'{${v
+          .map((w) => Query.encodeFieldValue(w, false))
+          .join(",")}}'`;
       throw new Error(`Invalid type for QueryFieldValue:object ${v}`);
     }
-    return JSON.stringify(v).replaceAll('"', "'");
+    let a = Query.escape(JSON.stringify(v));
+    if (singleQuote) {
+      a = a.replaceAll('"', "'");
+    }
+    return a;
+  }
+  static escape(str: string) {
+    return str.replaceAll(/'/g, "&#039");
   }
   select(fields: "*" | string[] | string = "*") {
     return new SelectQuery<T>(this.table, fields);

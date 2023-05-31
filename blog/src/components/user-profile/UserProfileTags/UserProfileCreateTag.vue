@@ -20,7 +20,7 @@ import type { NewTag } from "../../../models/tag";
 const tag = reactive<NewTag>({});
 
 async function createTag() {
-  const res = await fetcher.post("/tags/create", tag);
+  const res = await fetcher.post("/tags", tag);
   if (res.status === 200) {
     alert("Tag created");
     return;

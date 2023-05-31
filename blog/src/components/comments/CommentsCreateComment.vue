@@ -35,16 +35,16 @@ const reqBody = {
 
 const res = await fetcher.post("/sessions/user", reqBody);
 const user: User = res.user;
-// console.log(res);
 const comment: NewComment = reactive({
   author: user.id,
   content: "",
   rating: null,
   parent: null,
   post: props.post.id,
+  reply: undefined,
 });
 async function createComment() {
-  const res = await fetcher.post("/comments/create", comment);
+  const res = await fetcher.post("/comments", comment);
   if (res.status === 200) {
     alert("Comment created");
     return;

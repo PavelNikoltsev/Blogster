@@ -23,14 +23,14 @@ import { fetcher } from "../../../utils/fetcher";
 import CForm from "../../custom/CForm/CForm.vue";
 import type { NewUser } from "../../../models/user";
 const user = reactive<NewUser>({
-  name:'',
-  email:'',
-  password:'',
-  role:'client'
+  name: "",
+  email: "",
+  password: "",
+  role: "client",
 });
 
 async function createUser() {
-  const res = await fetcher.post("/users/create", user);
+  const res = await fetcher.post("/users", user);
   if (res.status === 200) {
     alert("User created");
     return;

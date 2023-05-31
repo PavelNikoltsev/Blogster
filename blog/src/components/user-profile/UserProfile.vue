@@ -1,20 +1,22 @@
 <template>
-  <h1>Hello, here is your profile {{ user.name }}</h1>
-  <div>
-    <div v-if="user.role === 'client'">
-      <p>Your role is a client.</p>
-      <UserProfileUser :user="user" />
+  <section id="user-profile" class="wrap">
+    <h1>Hello, here is your profile {{ user.name }}</h1>
+    <div>
+      <div v-if="user.role === 'client'">
+        <p>Your role is a client.</p>
+        <UserProfileUser :user="user" />
+      </div>
+      <div v-else>
+        <p>Your role is an admin.</p>
+        <UserProfileUser :user="user" />
+        <UserProfileCategories />
+        <UserProfileTags />
+        <UserProfileUsers />
+        <UserProfilePosts :author="user.name" />
+        <UserProfilePages :author="user.name" />
+      </div>
     </div>
-    <div v-else>
-      <p>Your role is an admin.</p>
-      <UserProfileUser :user="user" />
-      <UserProfileCategories />
-      <UserProfileTags />
-      <UserProfileUsers />
-      <UserProfilePosts :author="user.name" />
-      <UserProfilePages :author="user.name" />
-    </div>
-  </div>
+  </section>
 </template>
 <script lang="ts" setup>
 import type { User } from "../../models/user";

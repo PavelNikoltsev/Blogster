@@ -7,7 +7,7 @@ const pages = new Controller({
   routes: [
     {
       method: "post",
-      path: "/create",
+      path: "/",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
           const getPages = await new Query("pages").select().run();
@@ -31,7 +31,7 @@ const pages = new Controller({
     },
     {
       method: "put",
-      path: "/update/:id",
+      path: "/:id",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
           const id = req.params.id;
@@ -42,7 +42,7 @@ const pages = new Controller({
     },
     {
       method: "delete",
-      path: "/delete/:id",
+      path: "/:id",
       handler: (req, res) => {
         Controller.handle(req, res, async () => {
           const id = req.params.id;

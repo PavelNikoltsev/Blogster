@@ -68,7 +68,7 @@ const post = reactive<NewPost>({
 async function createPost() {
   post.link = `http://localhost:3000/${post.link}`;
   post.tags = `{${postTags.value.join(",")}}`;
-  const res = await fetcher.post("/posts/create", post);
+  const res = await fetcher.post("/posts", post);
   if (res.status === 200) {
     alert("Post created");
     return;
