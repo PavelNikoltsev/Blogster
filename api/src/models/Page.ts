@@ -3,7 +3,7 @@ import { IModel, IModelInsertable, Model } from "./Model.js";
 export interface PageInsertable extends IModelInsertable {
   title: string;
   description: string;
-  author: string;
+  author: number;
   content: string;
   slug: string;
   status: "draft" | "published";
@@ -16,7 +16,7 @@ export interface IPage extends PageInsertable, IModel {}
 export class Page extends Model<IPage, PageInsertable> {
   declare title: string;
   declare description: string;
-  declare author: string;
+  declare author: number;
   declare content: string;
   declare slug: string;
   declare status: "draft" | "published";
@@ -26,7 +26,7 @@ export class Page extends Model<IPage, PageInsertable> {
   static fields = `id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,
         description TEXT NOT NULL,
-        author TEXT NOT NULL,
+        author INTEGER NOT NULL,
         content TEXT NOT NULL,
         slug TEXT NOT NULL,
         status TEXT NOT NULL,

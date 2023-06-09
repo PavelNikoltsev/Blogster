@@ -9,11 +9,11 @@
       <div v-else>
         <p>Your role is an admin.</p>
         <UserProfileUser :user="user" />
-        <UserProfileCategories />
-        <UserProfileTags />
-        <UserProfileUsers />
-        <UserProfilePosts :author="user.name" />
-        <UserProfilePages :author="user.name" />
+        <UserProfileCategories :user="user" />
+        <UserProfileTags :user="user" />
+        <UserProfileUsers :user="user" />
+        <UserProfilePosts :user="user" />
+        <UserProfilePages :user="user" />
       </div>
     </div>
   </section>

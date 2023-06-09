@@ -8,37 +8,32 @@ export class Fetcher {
     const result = await res.json();
     return result.rows;
   }
-  async post<Type>(target: string, body: Type) {
+  async post<Type>(target: string, body: Type, user?: number) {
     const res = await fetch(`${this.url}${target}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        user: `${user}`,
       },
       body: JSON.stringify(body),
     });
     return await res.json();
   }
-  async delete(target: string) {
+  async delete(target: string, user?: number) {
     const res = await fetch(`${this.url}${target}`, {
       method: "DELETE",
-    });
-    return await res.json();
-  }
-  async put<Type>(target: string, body: Type) {
-    const res = await fetch(`${this.url}${target}`, {
-      method: "PUT",
       headers: {
-        "Content-Type": "application/json",
+        user: `${user}`,
       },
-      body: JSON.stringify(body),
     });
     return await res.json();
   }
-  async patch<Type>(target: string, body: Type) {
+  async put<Type>(target: string, body: Type, user?: number) {
     const res = await fetch(`${this.url}${target}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        user: `${user}`,
       },
       body: JSON.stringify(body),
     });

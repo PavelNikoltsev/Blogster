@@ -95,8 +95,9 @@ import CTable from "../../custom/CTable/CTable.vue";
 import { modalOpen } from "../../../utils";
 import type { NewPage, Page } from "../../../models/page";
 import { store } from "../../../models/store";
+import type { User } from "../../../models/user";
 const props = defineProps<{
-  author: string;
+  user: User;
 }>();
 const pages = ref<Page[]>([]);
 
@@ -110,7 +111,7 @@ async function get() {
 const updatePage: NewPage = reactive({
   title: "",
   description: "",
-  author: props.author,
+  author: props.user.id,
   content: "",
   slug: "",
   status: "draft",
@@ -138,21 +139,25 @@ function getValsToUpdate(
 const currentPage = ref(0);
 async function update(id: number) {
   updatePage.tags = `{${pageTags.value.join(",")}}`;
-  const res = await fetcher.put(`/pages/${id}`, updatePage);
+  const res = await fetcher.put(`/pages/${id}`, updatePage, props.user.id);
   if (res.status === 200) {
     alert("Page updated");
   }
   get();
 }
 async function deletePage(id: number) {
-  const res = await fetcher.delete(`/pages/${id}`);
+  const res = await fetcher.delete(`/pages/${id}`, props.user.id);
   if (res.status === 200) {
     alert("Page deleted");
   }
   get();
 }
 async function publishPage(id: number) {
-  const res = await fetcher.put(`/pages/${id}`, { status: "published" });
+  const res = await fetcher.put(
+    `/pages/${id}`,
+    { status: "published" },
+    props.user.id
+  );
   if (res.status === 200) {
     alert("page published");
   } else {

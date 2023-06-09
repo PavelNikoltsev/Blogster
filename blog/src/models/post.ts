@@ -1,7 +1,7 @@
 export interface NewPost {
   title: string;
   description: string;
-  author: string;
+  author: number;
   content: string;
   slug: string;
   status: "draft" | "published";

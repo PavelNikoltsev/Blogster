@@ -43,14 +43,15 @@ import { fetcher } from "../../../utils/fetcher";
 import CForm from "../../custom/CForm/CForm.vue";
 import type { NewPage } from "../../../models/page";
 import { store } from "../../../models/store";
+import type { User } from "../../../models/user";
 const props = defineProps<{
-  author: string;
+  user: User;
 }>();
 const pageTags = ref([]);
 const page = reactive<NewPage>({
   title: "",
   description: "",
-  author: props.author,
+  author: props.user.id,
   content: "",
   slug: "",
   status: "draft",
@@ -61,7 +62,7 @@ const page = reactive<NewPage>({
 async function createPage() {
   page.link = `http://localhost:3000/page/${page.link}`;
   page.tags = `{${pageTags.value.join(",")}}`;
-  const res = await fetcher.post("/pages", page);
+  const res = await fetcher.post("/pages", page, props.user.id);
   if (res.status === 200) {
     alert("page created");
     return;

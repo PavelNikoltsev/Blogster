@@ -1,3 +1,4 @@
+import { LogInsertable } from "../models/Log.js";
 import { Tag } from "../models/Tag.js";
 import { Query } from "../query-builder/index.js";
 import { Controller } from "./Controller.js";
@@ -23,14 +24,31 @@ const tags = new Controller({
             }
           });
           if (existTag) {
+            const log: LogInsertable = {
+              model: "tag",
+              action: "post",
+              author: req.headers.user,
+              meta: [
+                "404",
+                "Tag with one of provided parameters is already exist",
+              ],
+            };
+            await new Query("logs").insert(log).run();
             res.status(404).send({
               message: "Tag with one of provided parameters is already exist",
               status: 404,
             });
             return;
           } else {
-            res.status(200).send({ message: "Tag created", status: 200 });
             tags.modelConstructor.create(req.body);
+            const log: LogInsertable = {
+              model: "tag",
+              action: "post",
+              author: req.headers.user,
+              meta: ["200", "Tag created"],
+            };
+            await new Query("logs").insert(log).run();
+            res.status(200).send({ message: "Tag created", status: 200 });
             return;
           }
         });
@@ -43,6 +61,13 @@ const tags = new Controller({
         Controller.handle(req, res, async () => {
           const id = req.params.id;
           await new Query("tags").update(req.body).where("id", id).run();
+          const log: LogInsertable = {
+            model: "tag",
+            action: "put",
+            author: req.headers.user,
+            meta: ["200", "Tag updated"],
+          };
+          await new Query("logs").insert(log).run();
           res.status(200).send({ message: "Tag updated", status: 200 });
         });
       },
@@ -54,6 +79,13 @@ const tags = new Controller({
         Controller.handle(req, res, async () => {
           const id = req.params.id;
           await new Query("tags").delete().where("id", id).run();
+          const log: LogInsertable = {
+            model: "tag",
+            action: "delete",
+            author: req.headers.user,
+            meta: ["200", "Tag deleted"],
+          };
+          await new Query("logs").insert(log).run();
           res.status(200).send({ message: "Tag deleted", status: 200 });
         });
       },

@@ -17,11 +17,15 @@ import { reactive } from "vue";
 import type { NewCategory } from "../../../models/category";
 import { fetcher } from "../../../utils/fetcher";
 import CForm from "../../custom/CForm/CForm.vue";
+import type { User } from "../../../models/user";
+const props = defineProps<{
+  user: User;
+}>();
 const category = reactive<NewCategory>({});
 
 async function createCategory() {
   category.link = `http://localhost:3000/category/${category.link}/page/1`;
-  const res = await fetcher.post("/categories", category);
+  const res = await fetcher.post("/categories", category, props.user.id);
   if (res.status === 200) {
     alert("Category created");
     return;

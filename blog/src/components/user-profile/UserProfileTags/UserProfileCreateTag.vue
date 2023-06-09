@@ -17,10 +17,14 @@ import { reactive } from "vue";
 import { fetcher } from "../../../utils/fetcher";
 import CForm from "../../custom/CForm/CForm.vue";
 import type { NewTag } from "../../../models/tag";
+import type { User } from "../../../models/user";
+const props = defineProps<{
+  user: User;
+}>();
 const tag = reactive<NewTag>({});
 
 async function createTag() {
-  const res = await fetcher.post("/tags", tag);
+  const res = await fetcher.post("/tags", tag, props.user.id);
   if (res.status === 200) {
     alert("Tag created");
     return;

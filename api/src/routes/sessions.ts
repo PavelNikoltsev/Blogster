@@ -1,3 +1,4 @@
+import { LogInsertable } from "../models/Log.js";
 import { Session, SessionInsertable } from "../models/Session.js";
 import { User } from "../models/User.js";
 import { Query } from "../query-builder/index.js";
@@ -50,11 +51,25 @@ const sessions = new Controller({
           });
           if (existSession) {
             if (existSession.expired < new Date().toISOString()) {
+              const log: LogInsertable = {
+                model: "session",
+                action: "post",
+                author: String(existSession.userid),
+                meta: ["401", "Session expired"],
+              };
+              await new Query("logs").insert(log).run();
               res.status(401).send({
                 message: "Session expired",
                 status: 401,
               });
             } else {
+              const log: LogInsertable = {
+                model: "session",
+                action: "post",
+                author: String(existSession.userid),
+                meta: ["201", "Redirecting to profile"],
+              };
+              await new Query("logs").insert(log).run();
               res.status(201).send({
                 message: "Redirecting to profile",
                 status: 201,
@@ -75,12 +90,19 @@ const sessions = new Controller({
             });
             if (existUser) {
               const session = await newSession();
+              sessions.modelConstructor.create(session);
+              const log: LogInsertable = {
+                model: "session",
+                action: "post",
+                author: String(existUser.id),
+                meta: ["200", "Session created"],
+              };
+              await new Query("logs").insert(log).run();
               res.status(200).send({
                 message: "Session created",
                 token: session.token,
                 status: 200,
               });
-              sessions.modelConstructor.create(session);
               return;
             } else {
               res.status(404).send({
@@ -111,8 +133,8 @@ const sessions = new Controller({
               .send({ message: "User already exists", status: 404 });
             return;
           } else {
-            res.status(200).send({ message: "User created", status: 200 });
             await new Query("users").insert(req.body).run();
+            res.status(200).send({ message: "User created", status: 200 });
           }
         });
       },

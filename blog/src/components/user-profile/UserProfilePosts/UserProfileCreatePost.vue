@@ -49,14 +49,15 @@ import { fetcher } from "../../../utils/fetcher";
 import CForm from "../../custom/CForm/CForm.vue";
 import type { NewPost } from "../../../models/post";
 import { store } from "../../../models/store";
+import type { User } from "../../../models/user";
 const props = defineProps<{
-  author: string;
+  user: User;
 }>();
 const postTags = ref([]);
 const post = reactive<NewPost>({
   title: "",
   description: "",
-  author: props.author,
+  author: props.user.id,
   content: "",
   slug: "",
   status: "draft",
@@ -68,7 +69,7 @@ const post = reactive<NewPost>({
 async function createPost() {
   post.link = `http://localhost:3000/${post.link}`;
   post.tags = `{${postTags.value.join(",")}}`;
-  const res = await fetcher.post("/posts", post);
+  const res = await fetcher.post("/posts", post, props.user.id);
   if (res.status === 200) {
     alert("Post created");
     return;

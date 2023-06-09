@@ -7,11 +7,16 @@ import posts from "./routes/posts.js";
 import tags from "./routes/tags.js";
 import users from "./routes/users.js";
 import sessions from "./routes/sessions.js";
+import { Log, LogInsertable } from "./models/Log.js";
+import cron from "node-cron";
 import { Session } from "./models/Session.js";
 import { Query } from "./query-builder/index.js";
 import { InsertQuery } from "./query-builder/index.js";
 import { PostInsertable } from "./models/Post.js";
 import { CommentInsertable } from "./models/Comment.js";
+import { removeExpiredLogs } from "./cron-jobs/index.js";
+import { QueryCondition } from "./query-builder/index.js";
+import type { QueryFieldValue } from "./query-builder/index.js";
 
 const app = express();
 app.use(cors());
@@ -23,6 +28,9 @@ posts.connect(app);
 tags.connect(app);
 users.connect(app);
 sessions.connect(app);
+console.log(Log);
+
+cron.schedule("0 0 * * *", removeExpiredLogs);
 
 app.listen(3001, () => {
   console.log("Server started on port 3001");

@@ -1,11 +1,17 @@
 import { QueryResultRow } from "pg";
 import db from "../db/index.js";
 
-type QueryFieldValuePrimitive = string | boolean | number | null | Date;
+type QueryFieldValuePrimitive =
+  | string
+  | boolean
+  | number
+  | null
+  | Date
+  | undefined;
 export type QueryFieldValue =
   | QueryFieldValuePrimitive
   | QueryFieldValuePrimitive[];
-enum QueryCondition {
+export enum QueryCondition {
   EQUAL = "=",
   LESS = "<",
   GREATER = ">",
@@ -35,7 +41,7 @@ export class Query<T extends QueryResultRow = any> {
     }
   }
   static encodeFieldValue(v: QueryFieldValue, singleQuote = true): string {
-    if (typeof v === "object" && v !== null) {
+    if (typeof v === "object" && !(v instanceof Date) && v !== null) {
       if (Array.isArray(v))
         return `'{${v
           .map((w) => Query.encodeFieldValue(w, false))
@@ -94,6 +100,16 @@ class ConditionalQuery<T extends QueryResultRow = any> extends Query<T> {
     key: string,
     value: [string, string] | [number, number],
     condition: QueryCondition.BETWEEN
+  ): this;
+  where(
+    key: string,
+    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
+    condition: QueryCondition.LESS
+  ): this;
+  where(
+    key: string,
+    value: QueryFieldValue | Exclude<QueryFieldValuePrimitive, null>,
+    condition: QueryCondition.GREATER
   ): this;
   where(
     key: string,

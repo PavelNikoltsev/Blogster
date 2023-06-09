@@ -63,6 +63,9 @@ import CModalWindow from "../../custom/CModalWindow/CModalWindow.vue";
 import CTable from "../../custom/CTable/CTable.vue";
 import { modalOpen } from "../../../utils";
 import type { NewUser, User } from "../../../models/user";
+const props = defineProps<{
+  user: User;
+}>();
 const users = ref<User[]>([]);
 onMounted(() => {
   get();
@@ -89,14 +92,14 @@ function getValsToUpdate(
 }
 const currentUser = ref(0);
 async function update(id: number) {
-  const res = await fetcher.put(`/users/${id}`, updateUser);
+  const res = await fetcher.put(`/users/${id}`, updateUser, props.user.id);
   if (res.status === 200) {
     alert("User updated");
   }
   get();
 }
 async function deleteUser(id: number) {
-  const res = await fetcher.delete(`/users/${id}`);
+  const res = await fetcher.delete(`/users/${id}`, props.user.id);
   if (res.status === 200) {
     alert("User deleted");
   }

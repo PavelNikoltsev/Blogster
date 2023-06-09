@@ -56,6 +56,10 @@ import CForm from "../../custom/CForm/CForm.vue";
 import CModalWindow from "../../custom/CModalWindow/CModalWindow.vue";
 import CTable from "../../custom/CTable/CTable.vue";
 import { modalOpen } from "../../../utils";
+import type { User } from "../../../models/user";
+const props = defineProps<{
+  user: User;
+}>();
 const categories = ref<Category[]>([]);
 onMounted(() => {
   get();
@@ -71,14 +75,18 @@ function getValsToUpdate(name?: string, link?: string, slug?: string) {
 const updateCategory: NewCategory = reactive({});
 const currentCategory = ref(0);
 async function update(id: number) {
-  const res = await fetcher.put(`/categories/${id}`, updateCategory);
+  const res = await fetcher.put(
+    `/categories/${id}`,
+    updateCategory,
+    props.user.id
+  );
   if (res.status === 200) {
     alert("Category updated");
   }
   get();
 }
 async function deleteCategory(id: number) {
-  const res = await fetcher.delete(`/categories/${id}`);
+  const res = await fetcher.delete(`/categories/${id}`, props.user.id);
   if (res.status === 200) {
     alert("Category deleted");
   }

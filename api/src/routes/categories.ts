@@ -1,4 +1,5 @@
 import { Category } from "../models/Category.js";
+import { LogInsertable } from "../models/Log.js";
 import { Query } from "../query-builder/index.js";
 import { Controller } from "./Controller.js";
 const categories = new Controller({
@@ -23,6 +24,16 @@ const categories = new Controller({
             }
           });
           if (existCategory) {
+            const log: LogInsertable = {
+              model: "category",
+              action: "post",
+              author: req.headers.user,
+              meta: [
+                "404",
+                "Category with one of provided parameters is already exist",
+              ],
+            };
+            await new Query("logs").insert(log).run();
             res.status(404).send({
               message:
                 "Category with one of provided parameters is already exist",
@@ -30,8 +41,15 @@ const categories = new Controller({
             });
             return;
           } else {
-            res.status(200).send({ message: "Category created", status: 200 });
             categories.modelConstructor.create(req.body);
+            const log: LogInsertable = {
+              model: "category",
+              action: "post",
+              author: req.headers.user,
+              meta: ["200", "Category created"],
+            };
+            await new Query("logs").insert(log).run();
+            res.status(200).send({ message: "Category created", status: 200 });
             return;
           }
         });
@@ -44,6 +62,13 @@ const categories = new Controller({
         Controller.handle(req, res, async () => {
           const id = req.params.id;
           await new Query("categories").update(req.body).where("id", id).run();
+          const log: LogInsertable = {
+            model: "category",
+            action: "put",
+            author: req.headers.user,
+            meta: ["200", "Category updated"],
+          };
+          await new Query("logs").insert(log).run();
           res.status(200).send({ message: "Category updated", status: 200 });
         });
       },
@@ -55,6 +80,13 @@ const categories = new Controller({
         Controller.handle(req, res, async () => {
           const id = req.params.id;
           await new Query("categories").delete().where("id", id).run();
+          const log: LogInsertable = {
+            model: "category",
+            action: "delete",
+            author: req.headers.user,
+            meta: ["200", "Category deleted"],
+          };
+          await new Query("logs").insert(log).run();
           res.status(200).send({ message: "Category deleted", status: 200 });
         });
       },

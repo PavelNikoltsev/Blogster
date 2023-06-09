@@ -51,6 +51,10 @@ import CModalWindow from "../../custom/CModalWindow/CModalWindow.vue";
 import CTable from "../../custom/CTable/CTable.vue";
 import { modalOpen } from "../../../utils";
 import type { NewTag, Tag } from "../../../models/tag";
+import type { User } from "../../../models/user";
+const props = defineProps<{
+  user: User;
+}>();
 const tags = ref<Tag[]>([]);
 onMounted(() => {
   get();
@@ -70,14 +74,14 @@ function getValsToUpdate(name?: string, link?: string, slug?: string) {
 }
 const currentTag = ref(0);
 async function update(id: number) {
-  const res = await fetcher.put(`/tags/${id}`, updateTag);
+  const res = await fetcher.put(`/tags/${id}`, updateTag, props.user.id);
   if (res.status === 200) {
     alert("Tag updated");
   }
   get();
 }
 async function deleteTag(id: number) {
-  const res = await fetcher.delete(`/tags/${id}`);
+  const res = await fetcher.delete(`/tags/${id}`, props.user.id);
   if (res.status === 200) {
     alert("Tag deleted");
   }

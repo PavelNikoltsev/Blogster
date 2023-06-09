@@ -1,3 +1,4 @@
+import { LogInsertable } from "../models/Log.js";
 import { Page } from "../models/Page.js";
 import { Query } from "../query-builder/index.js";
 import { Controller } from "./Controller.js";
@@ -15,15 +16,28 @@ const pages = new Controller({
             (p: Page) => p.title === req.body.title
           );
           if (existPage) {
+            const log: LogInsertable = {
+              model: "page",
+              action: "post",
+              author: req.headers.user,
+              meta: ["404", "Page with provided title already exist"],
+            };
+            await new Query("logs").insert(log).run();
             res.status(404).send({
               message: "Page with provided title already exist",
               status: 404,
             });
             return;
           } else {
-            console.log(req.body);
-            res.status(200).send({ message: "Page created", status: 200 });
             pages.modelConstructor.create(req.body);
+            const log: LogInsertable = {
+              model: "page",
+              action: "post",
+              author: req.headers.user,
+              meta: ["404", "Page created"],
+            };
+            await new Query("logs").insert(log).run();
+            res.status(200).send({ message: "Page created", status: 200 });
             return;
           }
         });
@@ -36,6 +50,13 @@ const pages = new Controller({
         Controller.handle(req, res, async () => {
           const id = req.params.id;
           await new Query("pages").update(req.body).where("id", id).run();
+          const log: LogInsertable = {
+            model: "page",
+            action: "post",
+            author: req.headers.user,
+            meta: ["200", "Page updated"],
+          };
+          await new Query("logs").insert(log).run();
           res.status(200).send({ message: "Page updated", status: 200 });
         });
       },
@@ -47,6 +68,13 @@ const pages = new Controller({
         Controller.handle(req, res, async () => {
           const id = req.params.id;
           await new Query("pages").delete().where("id", id).run();
+          const log: LogInsertable = {
+            model: "page",
+            action: "post",
+            author: req.headers.user,
+            meta: ["200", "Page deleted"],
+          };
+          await new Query("logs").insert(log).run();
           res.status(200).send({ message: "Page deleted", status: 200 });
         });
       },

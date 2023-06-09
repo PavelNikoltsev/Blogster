@@ -106,8 +106,9 @@ import CTable from "../../custom/CTable/CTable.vue";
 import { modalOpen } from "../../../utils";
 import type { NewPost, Post } from "../../../models/post";
 import { store } from "../../../models/store";
+import type { User } from "../../../models/user";
 const props = defineProps<{
-  author: string;
+  user: User;
 }>();
 const posts = ref<Post[]>([]);
 const postTags = ref([]);
@@ -120,7 +121,7 @@ async function get() {
 const updatePost: NewPost = reactive({
   title: "",
   description: "",
-  author: props.author,
+  author: props.user.id,
   content: "",
   slug: "",
   status: "draft",
@@ -150,14 +151,14 @@ function getValsToUpdate(
 const currentPost = ref(0);
 async function update(id: number) {
   updatePost.tags = `{${postTags.value.join(",")}}`;
-  const res = await fetcher.put(`/posts/${id}`, updatePost);
+  const res = await fetcher.put(`/posts/${id}`, updatePost, props.user.id);
   if (res.status === 200) {
     alert("post updated");
   }
   get();
 }
 async function deletePost(id: number) {
-  const res = await fetcher.delete(`/posts/${id}`);
+  const res = await fetcher.delete(`/posts/${id}`, props.user.id);
   if (res.status === 200) {
     alert("post deleted");
   } else {
@@ -166,7 +167,11 @@ async function deletePost(id: number) {
   get();
 }
 async function publishPost(id: number) {
-  const res = await fetcher.put(`/posts/${id}`, { status: "published" });
+  const res = await fetcher.put(
+    `/posts/${id}`,
+    { status: "published" },
+    props.user.id
+  );
   if (res.status === 200) {
     alert("post published");
   } else {
