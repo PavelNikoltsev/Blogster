@@ -6,7 +6,7 @@
     </div>
   </footer>
 </template>
-<style lang="postcss">
+<style lang="scss">
 .footer {
   text-align: center;
   background-color: var(--c-bg-secondary);

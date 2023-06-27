@@ -3,8 +3,8 @@
     <div class="table-view-actions">
       <input type="text" v-model="searchQuery" placeholder="Search..." />
     </div>
-    <table>
-      <thead>
+    <Table>
+      <template v-slot:thead>
         <tr>
           <th v-for="(value, key) in displayedItems[0]" :key="key" @click="getSorted(key)">
             {{ key }}
@@ -15,13 +15,13 @@
             <i v-else class="fa-solid fa-arrow-up"></i>
           </th>
         </tr>
-      </thead>
-      <tbody>
+      </template>
+      <template v-slot:tbody>
         <tr v-for="(m, index) in displayedItems" :key="index">
           <td v-for="(value, key) in m" :key="key">{{ value }}</td>
         </tr>
-      </tbody>
-    </table>
+      </template>
+    </Table>
     <div class="table-view-pagination">
       <p>Items per page:</p>
       <select v-model="perPage">
@@ -38,18 +38,19 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import Table from './Table.vue'
+import { fetcher } from '@/utils/fetcher'
 const props = defineProps<{
-  model: 'categories' | 'pages' | 'posts' | 'tags' | 'users'
+  model: 'categories' | 'pages' | 'posts' | 'tags' | 'users' | 'comments' | 'logs'
 }>()
-const modelRes = await fetch(`http://172.20.233.86:3001/${props.model}`)
-const modelData = await modelRes.json()
 
+const model = await fetcher.get(`/${props.model}`)
 const searchQuery = ref('')
-const filteredItems = ref(modelData.rows)
+const filteredItems = ref(model)
 watch(searchQuery, (s) => {
   s === ''
-    ? (filteredItems.value = modelData.rows)
-    : (filteredItems.value = modelData.rows.filter(
+    ? (filteredItems.value = model)
+    : (filteredItems.value = model.filter(
         (md: any) => Object.values(md).join('').indexOf(s) !== -1
       ))
 })
@@ -92,12 +93,12 @@ function getSorted(s: any) {
 }
 </script>
 
-<style lang="postcss">
+<style lang="scss">
 .table-view {
-  th,
-  td {
-    border: 1px solid #fff;
-    padding: var(--s-2);
+  .c-table {
+    th {
+      white-space: nowrap;
+    }
   }
   &-pagination {
     * {

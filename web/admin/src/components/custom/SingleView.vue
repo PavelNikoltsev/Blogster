@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { fetcher } from '@/utils/fetcher'
 
 const props = defineProps<{
   item: {
@@ -32,7 +33,7 @@ const props = defineProps<{
     id: number
   }
 }>()
-const url = `http://172.20.233.86:3001/${props.item.model}/${props.item.id}`
+const url = `http://localhost:3001/${props.item.model}/${props.item.id}`
 const itemRes = await fetch(url)
 const itemData = await itemRes.json()
 
@@ -49,24 +50,17 @@ async function update() {
       delete item[i]
     }
   }
-  await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(item)
-  })
+
+  await fetcher.put(url, item)
 }
 
 async function deleteItem() {
-  await fetch(url, {
-    method: 'DELETE'
-  })
+  await fetcher.delete(url)
   // add routing
 }
 </script>
 
-<style lang="postcss">
+<style lang="scss">
 .single-view {
   &-fields {
     display: grid;

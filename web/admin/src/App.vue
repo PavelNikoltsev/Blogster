@@ -14,5 +14,5 @@ import TheHeader from './components/global/TheHeader/TheHeader.vue'
 import TheFooter from './components/global/TheFooter/TheFooter.vue'
 </script>
 <style lang="postcss">
-@import '@/styles/main.postcss';
+@import '@/styles/main.scss';
 </style>

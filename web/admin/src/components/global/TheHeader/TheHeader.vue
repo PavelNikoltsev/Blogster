@@ -34,14 +34,14 @@
   </header>
 </template>
 
-<style lang="postcss">
+<style lang="scss">
 header {
   background-color: var(--c-bg-secondary);
   .wrap {
     display: flex;
     justify-content: space-between;
     gap: var(--s-5);
-    align-items: stretch;
+    align-items: center;
   }
   nav {
     display: flex;
